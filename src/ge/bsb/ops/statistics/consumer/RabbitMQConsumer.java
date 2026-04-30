@@ -38,7 +38,8 @@ public class RabbitMQConsumer {
         System.out.println("Temp queue created: " + queueName);
 
         // Bind to the exchange with '#' wildcard — catches ALL routing keys
-        channel.queueBind(queueName, "B6.Transactions", "#");
+        channel.queueBind(queueName, "B6.Transactions", "b6.transaction.create");
+        channel.queueBind(queueName, "B6.Transactions", "b6.transaction.delete");
 
         System.out.println("Waiting for messages... (press Ctrl+C to stop)");
 
