@@ -11,6 +11,11 @@ import java.util.Properties;
 public class RabbitMQConsumer {
     private Connection connection;
     private Channel channel;
+    private MessageHandler handler;
+
+    public RabbitMQConsumer(MessageHandler handler) {
+        this.handler = handler;
+    }
 
     public void start() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
@@ -52,8 +57,6 @@ public class RabbitMQConsumer {
     }
 
     private DeliverCallback getDeliverCallback(Channel channel) {
-        MessageHandler messageHandler = new MessageHandler();
-
         return (consumerTag, delivery) -> {
             String routingKey = delivery.getEnvelope().getRoutingKey();
             String body = new String(delivery.getBody(), StandardCharsets.UTF_8);
@@ -61,7 +64,7 @@ public class RabbitMQConsumer {
 
             try {
                 TransactionMessage message = new TransactionMessage(routingKey, body);
-                //messageHandler.handle(message);
+                handler.handle(message);
 
                 System.out.println("Routing key: " + routingKey);
                 System.out.println("Body: " + body);

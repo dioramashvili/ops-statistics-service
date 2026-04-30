@@ -1,24 +1,22 @@
 package ge.bsb.ops.statistics.service;
 
+import ge.bsb.ops.statistics.repository.DatabaseConnection;
+
 import java.sql.*;
 
 public class SegmentResolver {
-    private static final String URL = "jdbc:sqlserver://devcluster\\devserv;databaseName=BANK2000;integratedSecurity=true;encrypt=false";
+    DatabaseConnection databaseConnection = new DatabaseConnection();
 
-    private Connection getConnection() throws SQLException{
-        return DriverManager.getConnection(URL);
-    }
-
-    public String resolve(int customerId){
+    public String resolve(int customerId) {
         if (customerId == 0) return "N/A";
 
-        try (Connection con = getConnection()){
-             if (isJuridical(con, customerId)) return "Company";
+        try (Connection con = databaseConnection.getConnection()) {
+            if (isJuridical(con, customerId)) return "Company";
 
-             if (hasAttribute(con, customerId, "UNIQUE_BANKER")) return "Unique";
-             if (hasAttribute(con, customerId, "PREMIUM_BANKER")) return "Premium";
+            if (hasAttribute(con, customerId, "UNIQUE_BANKER")) return "Unique";
+            if (hasAttribute(con, customerId, "PREMIUM_BANKER")) return "Premium";
 
-             return "Mass";
+            return "Mass";
         } catch (SQLException e) {
             e.printStackTrace();
         }
