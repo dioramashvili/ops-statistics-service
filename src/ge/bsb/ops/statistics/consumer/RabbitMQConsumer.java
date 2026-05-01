@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
@@ -24,7 +25,11 @@ public class RabbitMQConsumer {
     public void start() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
         Properties props = new Properties();
-        props.load(new FileInputStream("config.properties"));
+        try {
+            props.load(new FileInputStream("config.properties"));
+        } catch (IOException e) {
+            props.load(RabbitMQConsumer.class.getClassLoader().getResourceAsStream("config.properties"));
+        }
 
         factory.setHost(props.getProperty("rabbitmq.host"));
         factory.setPort(Integer.parseInt(props.getProperty("rabbitmq.port")));
