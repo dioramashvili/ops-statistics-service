@@ -12,13 +12,16 @@ import java.util.Map;
 public class SegmentResolver {
     private static final Logger log = LoggerFactory.getLogger(SegmentResolver.class);
     DatabaseConnection databaseConnection = new DatabaseConnection();
-
+    private final Map<Integer, String> cache = new HashMap<>();
 
 
     public String resolve(int customerId) {
         if (customerId == 0) return "N/A";
 
-
+        if (cache.containsKey(customerId)){
+            log.info("Cache hit for customerId: {}", customerId);
+            return cache.get(customerId);
+        }
 
         try (Connection con = databaseConnection.getConnection()) {
             String segment;
@@ -29,7 +32,7 @@ public class SegmentResolver {
             else segment = "Mass";
 
             log.info("Resolved segment for customerId: {} -> {}", customerId, segment);
-
+            cache.put(customerId, segment);
             return segment;
 
         } catch (SQLException e) {
