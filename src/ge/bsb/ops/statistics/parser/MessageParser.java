@@ -17,13 +17,23 @@ public class MessageParser {
     public Transaction parse(String body) throws Exception {
         JsonNode root = objectMapper.readTree(body);
 
-        if (root.get("debitCustomerId") == null || root.get("creditCustomerId") == null) {
+        if (root.get("debitCustomerId") == null && root.get("creditCustomerId") == null) {
             log.warn("Message missing customer IDs, skipping. Body: {}", body);
             return null;
         }
         Transaction transaction = new Transaction();
-        transaction.setDebitCustomerId(root.get("debitCustomerId").asInt());
-        transaction.setCreditCustomerId(root.get("creditCustomerId").asInt());
+        transaction.setDebitCustomerId(
+                root.has("debitCustomerId") ? root.get("debitCustomerId").asInt() : 0
+        );
+        transaction.setCreditCustomerId(
+                root.has("creditCustomerId") ? root.get("creditCustomerId").asInt() : 0
+        );
+        if (!root.has("debitCustomerId")) {
+            log.info("Debit account has no owner client - will be treated as N/A");
+        }
+        if (!root.has("creditCustomerId")) {
+            log.info("Credit account has no owner client - will be treated as N/A");
+        }
         transaction.setChannelId(root.get("channelId").asInt());
         transaction.setDate(LocalDate.parse(root.get("date").asText()));
 
