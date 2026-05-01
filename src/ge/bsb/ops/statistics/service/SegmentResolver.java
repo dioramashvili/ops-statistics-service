@@ -1,28 +1,42 @@
 package ge.bsb.ops.statistics.service;
 
+import ge.bsb.ops.statistics.consumer.RabbitMQConsumer;
 import ge.bsb.ops.statistics.repository.DatabaseConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SegmentResolver {
+    private static final Logger log = LoggerFactory.getLogger(SegmentResolver.class);
     DatabaseConnection databaseConnection = new DatabaseConnection();
+
+
 
     public String resolve(int customerId) {
         if (customerId == 0) return "N/A";
 
+
+
         try (Connection con = databaseConnection.getConnection()) {
-            if (isJuridical(con, customerId)) return "Company";
+            String segment;
 
-            if (hasAttribute(con, customerId, "UNIQUE_BANKER")) return "Unique";
-            if (hasAttribute(con, customerId, "PREMIUM_BANKER")) return "Premium";
+            if (isJuridical(con, customerId)) segment = "Company";
+            else if (hasAttribute(con, customerId, "UNIQUE_BANKER")) segment = "Unique";
+            else if (hasAttribute(con, customerId, "PREMIUM_BANKER")) segment = "Premium";
+            else segment = "Mass";
 
-            return "Mass";
+            log.info("Resolved segment for customerId: {} -> {}", customerId, segment);
+
+            return segment;
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Failed to resolve segment for customerId: {}", customerId, e);
         }
         return "N/A";
     }
-
     private boolean isJuridical(Connection con, int customerId) throws SQLException {
         try (PreparedStatement stmt = con.prepareStatement(
                 "SELECT IS_JURIDICAL FROM dbo.CLIENTS WHERE CLIENT_NO = ?")) {

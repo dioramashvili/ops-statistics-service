@@ -3,18 +3,22 @@ package ge.bsb.ops.statistics.consumer;
 import com.rabbitmq.client.*;
 import ge.bsb.ops.statistics.handler.MessageHandler;
 import ge.bsb.ops.statistics.model.TransactionMessage;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 public class RabbitMQConsumer {
+    private static final Logger log = LoggerFactory.getLogger(RabbitMQConsumer.class);
+
     private Connection connection;
     private Channel channel;
-    private MessageHandler handler;
+    private final MessageHandler messageHandler;
 
-    public RabbitMQConsumer(MessageHandler handler) {
-        this.handler = handler;
+    public RabbitMQConsumer(MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
     }
 
     public void start() throws Exception {
@@ -29,30 +33,28 @@ public class RabbitMQConsumer {
         factory.setVirtualHost(props.getProperty("rabbitmq.virtualhost"));
 
         connection = factory.newConnection();
+        log.info("Connected to RabbitMQ successfully");
         channel = connection.createChannel();
 
-        // Declare a temporary, auto-delete queue (disappears when you disconnect)
         String queueName = channel.queueDeclare(
-                "basis.statistics.queue",     // empty = server generates a unique name
-                false,  // durable
-                true,   // exclusive
-                true,   // auto-delete
+                props.getProperty("rabbitmq.queue"),
+                true,  // durable
+                false,   // exclusive
+                false,   // auto-delete
                 null    // Extra configs
         ).getQueue();
 
-        System.out.println("Temp queue created: " + queueName);
+        log.info("Queue declared: {}", queueName);
 
-        // Bind to the exchange with '#' wildcard — catches ALL routing keys
-        channel.queueBind(queueName, "B6.Transactions", "b6.transaction.create");
-        channel.queueBind(queueName, "B6.Transactions", "b6.transaction.delete");
+        channel.queueBind(queueName, props.getProperty("rabbitmq.exchange"), "b6.transaction.create");
+        channel.queueBind(queueName, props.getProperty("rabbitmq.exchange"), "b6.transaction.delete");
 
-        System.out.println("Waiting for messages... (press Ctrl+C to stop)");
+        log.info("Waiting for messages...");
 
         channel.basicQos(1);
         DeliverCallback deliverCallback = getDeliverCallback(channel);
-        channel.basicConsume(queueName, false, deliverCallback, consumerTag -> System.out.println("Consumer cancelled: " + consumerTag));
+        channel.basicConsume(queueName, false, deliverCallback, consumerTag -> log.warn("Consumer cancelled: {}", consumerTag));
 
-        // Keep the main thread alive
         Thread.currentThread().join();
     }
 
@@ -64,14 +66,13 @@ public class RabbitMQConsumer {
 
             try {
                 TransactionMessage message = new TransactionMessage(routingKey, body);
-                handler.handle(message);
-
-                System.out.println("Routing key: " + routingKey);
-                System.out.println("Body: " + body);
-
+                log.info("Received message - routing key: {}", routingKey);
+                messageHandler.handle(message);
                 channel.basicAck(deliveryTag, false);
+                log.info("Message acknowledged successfully");
+
             } catch (Exception e) {
-                System.out.println("Failed to proces: " + e.getMessage());
+                log.error("Failed to process message", e);
                 channel.basicNack(deliveryTag, false, false);
             }
         };
@@ -80,5 +81,6 @@ public class RabbitMQConsumer {
     public void stop() throws Exception {
         channel.close();
         connection.close();
+        log.info("Shutting down consumer...");
     }
 }

@@ -1,15 +1,24 @@
 package ge.bsb.ops.statistics.repository;
 
+import ge.bsb.ops.statistics.consumer.RabbitMQConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
 public class StatisticsRepository {
+    private static final Logger log = LoggerFactory.getLogger(StatisticsRepository.class);
     DatabaseConnection databaseConnection = new DatabaseConnection();
 
     public void upsert(String debitSegment, String creditSegment, int channelId, LocalDate date, String routingKey) {
         int delta = routingKey.equals("b6.transaction.create") ? 1 : -1;
+
+        log.info("Upserting stats - debit: {}, credit: {}, channel: {}, date: {}, delta: {}",
+                debitSegment, creditSegment, channelId, date, delta);
+
         try (Connection con = databaseConnection.getConnection()) {
             try (PreparedStatement stmt = con.prepareStatement(
                     "MERGE basis.OPS_SEGMENT_STATISTICS_DAVIT AS target\n" +
@@ -41,9 +50,10 @@ public class StatisticsRepository {
                 stmt.setInt(10, delta);
 
                 stmt.executeUpdate();
-                stmt.executeUpdate();
+                log.info("Upsert successful");
             }
         } catch (SQLException e) {
+            log.error("Upsert failed", e);
             throw new RuntimeException(e);
         }
     }

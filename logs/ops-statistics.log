@@ -1,0 +1,173 @@
+2026-04-30 17:05:22 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Connected to RabbitMQ successfully
+2026-04-30 17:05:22 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Waiting for messages...
+2026-04-30 17:05:49 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create, body: {"branchId":0,"deptId":0,"parentId":0,"orderDate":"2026-04-29","orderNumber":0,"opCode":"TEST","purpose":"TEST DOC2","flags":0,"typeId":1,"date":"2026-04-30","ccy":"GEL","amount":105.0000,"amountEqu":105.0000,"feeAmount":0.0000,"debitAccountId":202831503,"creditAccountId":202831508,"statusId":1,"channelId":1,"batchId":"6afbe940-ddda-4ff1-bf8b-190ed791fc7b","version":0,"debitCustomerId":950933,"debitAccount":"GE30BS0000095093336001","debitAccountName":"C/A IORAMASHVILI DAVIT","debitAccountTypeId":100,"creditCustomerId":950933,"creditAccount":"GE85BS0000095093345002","creditAccountName":"CARD ACC IORAMASHVILI DAVIT N1","creditAccountTypeId":200,"status":"Red","typeCode":"MemOrder","createdAt":"2026-04-30T17:05:48.043+04:00","counterCcy":"GEL","counterAmount":105.0000,"counterAmountEqu":105.0000,"id":534537829,"messageId":"0000000026A45963"}
+2026-04-30 17:05:49 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Message acknowledged successfully
+2026-04-30 17:07:02 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.delete, body: {"typeId":1,"date":"2026-04-30","ccy":"GEL","amount":105.0000,"amountEqu":105.0000,"feeAmount":0.0000,"debitAccountId":202831503,"creditAccountId":202831508,"statusId":1,"channelId":1,"batchId":"6afbe940-ddda-4ff1-bf8b-190ed791fc7b","version":0,"debitCustomerId":950933,"debitAccount":"GE30BS0000095093336001","debitAccountTypeId":100,"creditCustomerId":950933,"creditAccount":"GE85BS0000095093345002","creditAccountTypeId":200,"status":"Red","typeCode":"MemOrder","createdAt":"2026-04-30T17:07:01.303+04:00","counterCcy":"GEL","counterAmount":105.0000,"counterAmountEqu":105.0000,"id":534537829,"messageId":"0000000026A45966"}
+2026-04-30 17:07:02 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Message acknowledged successfully
+2026-04-30 17:13:45 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Connected to RabbitMQ successfully
+2026-04-30 17:13:45 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Queue declared: basis.statistics.queue
+2026-04-30 17:13:45 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Waiting for messages...
+2026-04-30 17:14:02 [INFO] g.b.o.s.handler.MessageHandler - Processing transaction - debitSegment: Mass, creditSegment: Mass, channelId: 1, date: 2026-04-30
+2026-04-30 17:14:02 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create, body: {"branchId":0,"deptId":0,"parentId":0,"orderDate":"2026-04-29","orderNumber":0,"opCode":"TEST","purpose":"TEST DOC2","flags":0,"typeId":1,"date":"2026-04-30","ccy":"GEL","amount":105.0000,"amountEqu":105.0000,"feeAmount":0.0000,"debitAccountId":202831503,"creditAccountId":202831508,"statusId":1,"channelId":1,"batchId":"3a5a8a0f-6913-45fd-853c-9c84115fb316","version":0,"debitCustomerId":950933,"debitAccount":"GE30BS0000095093336001","debitAccountName":"C/A IORAMASHVILI DAVIT","debitAccountTypeId":100,"creditCustomerId":950933,"creditAccount":"GE85BS0000095093345002","creditAccountName":"CARD ACC IORAMASHVILI DAVIT N1","creditAccountTypeId":200,"status":"Red","typeCode":"MemOrder","createdAt":"2026-04-30T17:14:02.08+04:00","counterCcy":"GEL","counterAmount":105.0000,"counterAmountEqu":105.0000,"id":534537831,"messageId":"0000000026A4596B"}
+2026-04-30 17:14:02 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Message acknowledged successfully
+2026-04-30 17:16:35 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Connected to RabbitMQ successfully
+2026-04-30 17:16:35 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Queue declared: basis.statistics.queue
+2026-04-30 17:16:35 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Waiting for messages...
+2026-04-30 17:16:40 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create, body: {"branchId":0,"deptId":0,"parentId":0,"orderDate":"2026-04-29","orderNumber":0,"opCode":"TEST","purpose":"TEST DOC2","flags":0,"typeId":1,"date":"2026-04-30","ccy":"GEL","amount":105.0000,"amountEqu":105.0000,"feeAmount":0.0000,"debitAccountId":202831503,"creditAccountId":202831508,"statusId":1,"channelId":1,"batchId":"acc76699-76e1-44f6-8f7b-becdeb9a555c","version":0,"debitCustomerId":950933,"debitAccount":"GE30BS0000095093336001","debitAccountName":"C/A IORAMASHVILI DAVIT","debitAccountTypeId":100,"creditCustomerId":950933,"creditAccount":"GE85BS0000095093345002","creditAccountName":"CARD ACC IORAMASHVILI DAVIT N1","creditAccountTypeId":200,"status":"Red","typeCode":"MemOrder","createdAt":"2026-04-30T17:16:39.97+04:00","counterCcy":"GEL","counterAmount":105.0000,"counterAmountEqu":105.0000,"id":534537833,"messageId":"0000000026A4596E"}
+2026-04-30 17:16:40 [INFO] g.b.o.s.handler.MessageHandler - Processing transaction - debitSegment: Mass, creditSegment: Mass, channelId: 1, date: 2026-04-30
+2026-04-30 17:16:40 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Message acknowledged successfully
+2026-04-30 17:22:14 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Connected to RabbitMQ successfully
+2026-04-30 17:22:14 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Queue declared: basis.statistics.queue
+2026-04-30 17:22:14 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Waiting for messages...
+2026-04-30 17:22:14 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create, body: {"branchId":0,"deptId":0,"parentId":-1,"orderDate":"2026-04-30","orderNumber":30629,"opCode":"I-Pay","purpose":"პირადი გადარიცხვა","debitExtraInformation":"CBASGE22, GE83BS0000000086345547, ოსეფაშვილი გიორგი იოსების ძე","creditExtraInformation":"CBASGE22, GE10BS0000000000625342, ჩარიცხვების სატრანზიტო ანგარიში\u00A0 BOG 24/7","flags":0,"paymentDetail":{"senderTaxpayerId":"00000000000","receiverTaxpayerId":"20001057066","receiverBankCode":"CBASGE22","receiverBankName":"სს ბაზისბანკი","receiverAccount":"GE83BS0000000086345547","receiverName":"ოსეფაშვილი გიორგი იოსების ძე","senderBankCode":"CBASGE22","senderBankName":"სს ბაზისბანკი","senderAccount":"GE10BS0000000000625342","senderName":"ჩარიცხვების სატრანზიტო ანგარიში\u00A0 BOG 24/7","postingDate":"2026-04-30","additionalInformation":"გადამხდელი ბანკის კოდი: BAGAGE22 გადამხდელი: ელენა კაპანაძე","payerId":"00000000000","payerName":"ჩარიცხვების სატრანზიტო ანგარიში\u00A0 BOG 24/7"},"identityDocumentDetail":{"typeId":0,"citizenshipCountry":"GE"},"typeId":100,"date":"2026-04-30","ccy":"GEL","amount":0.1000,"amountEqu":0.1000,"feeAmount":0.0000,"debitAccountId":202819629,"creditAccountId":48447500,"statusId":0,"channelId":1550,"batchId":"6ca0a61e-5483-4617-91eb-dd48538f0277","transactionReference":"6ca0a61e-5483-4617-91eb-dd48538f0277","version":0,"debitAccount":"GE10BS0000000000625342","debitAccountName":"ჩარიცხვების სატრანზიტო ანგარიში\u00A0 BOG 24/7","debitAccountTypeId":1,"creditCustomerId":109943,"creditAccount":"GE83BS0000000086345547","creditAccountName":"CARD ACC Osepashvili Giorgi Iosebi N1","creditAccountTypeId":200,"status":"Red","typeCode":"XFerLcyIntraBank","createdAt":"2026-04-30T17:21:22.96+04:00","counterCcy":"GEL","counterAmount":0.1000,"counterAmountEqu":0.1000,"id":534537835,"messageId":"0000000026A45973"}
+2026-04-30 17:22:14 [ERROR] g.b.o.s.consumer.RabbitMQConsumer - Failed to process message
+java.lang.NullPointerException: Cannot invoke "com.fasterxml.jackson.databind.JsonNode.asInt()" because the return value of "com.fasterxml.jackson.databind.JsonNode.get(String)" is null
+	at ge.bsb.ops.statistics.parser.MessageParser.parse(MessageParser.java:16)
+	at ge.bsb.ops.statistics.handler.MessageHandler.handle(MessageHandler.java:27)
+	at ge.bsb.ops.statistics.consumer.RabbitMQConsumer.lambda$getDeliverCallback$1(RabbitMQConsumer.java:70)
+	at com.rabbitmq.client.impl.recovery.AutorecoveringChannel$2.handleDelivery(AutorecoveringChannel.java:588)
+	at com.rabbitmq.client.impl.ConsumerDispatcher$5.run(ConsumerDispatcher.java:149)
+	at com.rabbitmq.client.impl.ConsumerWorkService$WorkPoolRunnable.run(ConsumerWorkService.java:111)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-04-30 17:22:14 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create, body: {"branchId":0,"deptId":0,"parentId":534537835,"orderDate":"2026-04-30","orderNumber":7454350,"opCode":"I-Pay","purpose":"24/7 ჩარიცხვის საკომისიო REF: 6ca0a61e-5483-4617-91eb-dd48538f0277","flags":0,"typeId":98,"date":"2026-04-30","ccy":"GEL","amount":0.0300,"amountEqu":0.0300,"feeAmount":0.0000,"debitAccountId":202819642,"creditAccountId":3884000,"statusId":0,"channelId":1550,"batchId":"6ca0a61e-5483-4617-91eb-dd48538f0277","transactionReference":"6ca0a61e-5483-4617-91eb-dd48538f0277","version":0,"debitAccount":"GE50BS0000000000084041","debitAccountName":"საკომისიოები და ხარჯები BOG 24/7 ოპერაციებიდან\u00A0","debitAccountTypeId":1,"creditAccount":"GE17BS0000000000017123","creditAccountName":"Corr.Acc. Bank of Georgia","creditAccountTypeId":4,"status":"Red","typeCode":"MemOrder","createdAt":"2026-04-30T17:21:23.113+04:00","counterCcy":"GEL","counterAmount":0.0300,"counterAmountEqu":0.0300,"id":534537837,"messageId":"0000000026A45974"}
+2026-04-30 17:22:14 [ERROR] g.b.o.s.consumer.RabbitMQConsumer - Failed to process message
+java.lang.NullPointerException: Cannot invoke "com.fasterxml.jackson.databind.JsonNode.asInt()" because the return value of "com.fasterxml.jackson.databind.JsonNode.get(String)" is null
+	at ge.bsb.ops.statistics.parser.MessageParser.parse(MessageParser.java:16)
+	at ge.bsb.ops.statistics.handler.MessageHandler.handle(MessageHandler.java:27)
+	at ge.bsb.ops.statistics.consumer.RabbitMQConsumer.lambda$getDeliverCallback$1(RabbitMQConsumer.java:70)
+	at com.rabbitmq.client.impl.recovery.AutorecoveringChannel$2.handleDelivery(AutorecoveringChannel.java:588)
+	at com.rabbitmq.client.impl.ConsumerDispatcher$5.run(ConsumerDispatcher.java:149)
+	at com.rabbitmq.client.impl.ConsumerWorkService$WorkPoolRunnable.run(ConsumerWorkService.java:111)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-04-30 17:22:14 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create, body: {"branchId":0,"deptId":0,"parentId":534537835,"orderDate":"2026-04-30","orderNumber":7454351,"opCode":"I-Pay","purpose":"24/7 ჩარიცხვა  REF: 6ca0a61e-5483-4617-91eb-dd48538f0277","flags":0,"typeId":98,"date":"2026-04-30","ccy":"GEL","amount":0.1000,"amountEqu":0.1000,"feeAmount":0.0000,"debitAccountId":3884000,"creditAccountId":202819629,"statusId":0,"channelId":1550,"batchId":"6ca0a61e-5483-4617-91eb-dd48538f0277","transactionReference":"6ca0a61e-5483-4617-91eb-dd48538f0277","version":0,"debitAccount":"GE17BS0000000000017123","debitAccountName":"Corr.Acc. Bank of Georgia","debitAccountTypeId":4,"creditAccount":"GE10BS0000000000625342","creditAccountName":"ჩარიცხვების სატრანზიტო ანგარიში\u00A0 BOG 24/7","creditAccountTypeId":1,"status":"Red","typeCode":"MemOrder","createdAt":"2026-04-30T17:21:23.193+04:00","counterCcy":"GEL","counterAmount":0.1000,"counterAmountEqu":0.1000,"id":534537839,"messageId":"0000000026A45975"}
+2026-04-30 17:22:14 [ERROR] g.b.o.s.consumer.RabbitMQConsumer - Failed to process message
+java.lang.NullPointerException: Cannot invoke "com.fasterxml.jackson.databind.JsonNode.asInt()" because the return value of "com.fasterxml.jackson.databind.JsonNode.get(String)" is null
+	at ge.bsb.ops.statistics.parser.MessageParser.parse(MessageParser.java:16)
+	at ge.bsb.ops.statistics.handler.MessageHandler.handle(MessageHandler.java:27)
+	at ge.bsb.ops.statistics.consumer.RabbitMQConsumer.lambda$getDeliverCallback$1(RabbitMQConsumer.java:70)
+	at com.rabbitmq.client.impl.recovery.AutorecoveringChannel$2.handleDelivery(AutorecoveringChannel.java:588)
+	at com.rabbitmq.client.impl.ConsumerDispatcher$5.run(ConsumerDispatcher.java:149)
+	at com.rabbitmq.client.impl.ConsumerWorkService$WorkPoolRunnable.run(ConsumerWorkService.java:111)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-04-30 17:22:14 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create, body: {"branchId":0,"deptId":0,"parentId":-1,"orderDate":"2026-04-30","orderNumber":30630,"opCode":"I-Pay","purpose":"პირადი გადარიცხვა","debitExtraInformation":"CBASGE22, GE83BS0000000086345547, ოსეფაშვილი გიორგი იოსების ძე","creditExtraInformation":"CBASGE22, GE10BS0000000000625342, ჩარიცხვების სატრანზიტო ანგარიში\u00A0 BOG 24/7","flags":0,"paymentDetail":{"senderTaxpayerId":"00000000000","receiverTaxpayerId":"20001057066","receiverBankCode":"CBASGE22","receiverBankName":"სს ბაზისბანკი","receiverAccount":"GE83BS0000000086345547","receiverName":"ოსეფაშვილი გიორგი იოსების ძე","senderBankCode":"CBASGE22","senderBankName":"სს ბაზისბანკი","senderAccount":"GE10BS0000000000625342","senderName":"ჩარიცხვების სატრანზიტო ანგარიში\u00A0 BOG 24/7","postingDate":"2026-04-30","additionalInformation":"გადამხდელი ბანკის კოდი: BAGAGE22 გადამხდელი: ელენა კაპანაძე","payerId":"00000000000","payerName":"ჩარიცხვების სატრანზიტო ანგარიში\u00A0 BOG 24/7"},"identityDocumentDetail":{"typeId":0,"citizenshipCountry":"GE"},"typeId":100,"date":"2026-04-30","ccy":"GEL","amount":0.2000,"amountEqu":0.2000,"feeAmount":0.0000,"debitAccountId":202819629,"creditAccountId":48447500,"statusId":0,"channelId":1550,"batchId":"b8ace2aa-3bb9-4dbf-a95a-b19e525188fa","transactionReference":"b8ace2aa-3bb9-4dbf-a95a-b19e525188fa","version":0,"debitAccount":"GE10BS0000000000625342","debitAccountName":"ჩარიცხვების სატრანზიტო ანგარიში\u00A0 BOG 24/7","debitAccountTypeId":1,"creditCustomerId":109943,"creditAccount":"GE83BS0000000086345547","creditAccountName":"CARD ACC Osepashvili Giorgi Iosebi N1","creditAccountTypeId":200,"status":"Red","typeCode":"XFerLcyIntraBank","createdAt":"2026-04-30T17:21:51.12+04:00","counterCcy":"GEL","counterAmount":0.2000,"counterAmountEqu":0.2000,"id":534537841,"messageId":"0000000026A45980"}
+2026-04-30 17:22:14 [ERROR] g.b.o.s.consumer.RabbitMQConsumer - Failed to process message
+java.lang.NullPointerException: Cannot invoke "com.fasterxml.jackson.databind.JsonNode.asInt()" because the return value of "com.fasterxml.jackson.databind.JsonNode.get(String)" is null
+	at ge.bsb.ops.statistics.parser.MessageParser.parse(MessageParser.java:16)
+	at ge.bsb.ops.statistics.handler.MessageHandler.handle(MessageHandler.java:27)
+	at ge.bsb.ops.statistics.consumer.RabbitMQConsumer.lambda$getDeliverCallback$1(RabbitMQConsumer.java:70)
+	at com.rabbitmq.client.impl.recovery.AutorecoveringChannel$2.handleDelivery(AutorecoveringChannel.java:588)
+	at com.rabbitmq.client.impl.ConsumerDispatcher$5.run(ConsumerDispatcher.java:149)
+	at com.rabbitmq.client.impl.ConsumerWorkService$WorkPoolRunnable.run(ConsumerWorkService.java:111)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-04-30 17:22:14 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create, body: {"branchId":0,"deptId":0,"parentId":534537841,"orderDate":"2026-04-30","orderNumber":7454352,"opCode":"I-Pay","purpose":"24/7 ჩარიცხვის საკომისიო REF: b8ace2aa-3bb9-4dbf-a95a-b19e525188fa","flags":0,"typeId":98,"date":"2026-04-30","ccy":"GEL","amount":0.0300,"amountEqu":0.0300,"feeAmount":0.0000,"debitAccountId":202819642,"creditAccountId":3884000,"statusId":0,"channelId":1550,"batchId":"b8ace2aa-3bb9-4dbf-a95a-b19e525188fa","transactionReference":"b8ace2aa-3bb9-4dbf-a95a-b19e525188fa","version":0,"debitAccount":"GE50BS0000000000084041","debitAccountName":"საკომისიოები და ხარჯები BOG 24/7 ოპერაციებიდან\u00A0","debitAccountTypeId":1,"creditAccount":"GE17BS0000000000017123","creditAccountName":"Corr.Acc. Bank of Georgia","creditAccountTypeId":4,"status":"Red","typeCode":"MemOrder","createdAt":"2026-04-30T17:21:51.497+04:00","counterCcy":"GEL","counterAmount":0.0300,"counterAmountEqu":0.0300,"id":534537843,"messageId":"0000000026A45981"}
+2026-04-30 17:22:14 [ERROR] g.b.o.s.consumer.RabbitMQConsumer - Failed to process message
+java.lang.NullPointerException: Cannot invoke "com.fasterxml.jackson.databind.JsonNode.asInt()" because the return value of "com.fasterxml.jackson.databind.JsonNode.get(String)" is null
+	at ge.bsb.ops.statistics.parser.MessageParser.parse(MessageParser.java:16)
+	at ge.bsb.ops.statistics.handler.MessageHandler.handle(MessageHandler.java:27)
+	at ge.bsb.ops.statistics.consumer.RabbitMQConsumer.lambda$getDeliverCallback$1(RabbitMQConsumer.java:70)
+	at com.rabbitmq.client.impl.recovery.AutorecoveringChannel$2.handleDelivery(AutorecoveringChannel.java:588)
+	at com.rabbitmq.client.impl.ConsumerDispatcher$5.run(ConsumerDispatcher.java:149)
+	at com.rabbitmq.client.impl.ConsumerWorkService$WorkPoolRunnable.run(ConsumerWorkService.java:111)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-04-30 17:22:14 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create, body: {"branchId":0,"deptId":0,"parentId":534537841,"orderDate":"2026-04-30","orderNumber":7454353,"opCode":"I-Pay","purpose":"24/7 ჩარიცხვა  REF: b8ace2aa-3bb9-4dbf-a95a-b19e525188fa","flags":0,"typeId":98,"date":"2026-04-30","ccy":"GEL","amount":0.2000,"amountEqu":0.2000,"feeAmount":0.0000,"debitAccountId":3884000,"creditAccountId":202819629,"statusId":0,"channelId":1550,"batchId":"b8ace2aa-3bb9-4dbf-a95a-b19e525188fa","transactionReference":"b8ace2aa-3bb9-4dbf-a95a-b19e525188fa","version":0,"debitAccount":"GE17BS0000000000017123","debitAccountName":"Corr.Acc. Bank of Georgia","debitAccountTypeId":4,"creditAccount":"GE10BS0000000000625342","creditAccountName":"ჩარიცხვების სატრანზიტო ანგარიში\u00A0 BOG 24/7","creditAccountTypeId":1,"status":"Red","typeCode":"MemOrder","createdAt":"2026-04-30T17:21:51.61+04:00","counterCcy":"GEL","counterAmount":0.2000,"counterAmountEqu":0.2000,"id":534537845,"messageId":"0000000026A45982"}
+2026-04-30 17:22:14 [ERROR] g.b.o.s.consumer.RabbitMQConsumer - Failed to process message
+java.lang.NullPointerException: Cannot invoke "com.fasterxml.jackson.databind.JsonNode.asInt()" because the return value of "com.fasterxml.jackson.databind.JsonNode.get(String)" is null
+	at ge.bsb.ops.statistics.parser.MessageParser.parse(MessageParser.java:16)
+	at ge.bsb.ops.statistics.handler.MessageHandler.handle(MessageHandler.java:27)
+	at ge.bsb.ops.statistics.consumer.RabbitMQConsumer.lambda$getDeliverCallback$1(RabbitMQConsumer.java:70)
+	at com.rabbitmq.client.impl.recovery.AutorecoveringChannel$2.handleDelivery(AutorecoveringChannel.java:588)
+	at com.rabbitmq.client.impl.ConsumerDispatcher$5.run(ConsumerDispatcher.java:149)
+	at com.rabbitmq.client.impl.ConsumerWorkService$WorkPoolRunnable.run(ConsumerWorkService.java:111)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-04-30 17:22:29 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Connected to RabbitMQ successfully
+2026-04-30 17:22:29 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Queue declared: basis.statistics.queue
+2026-04-30 17:22:29 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Waiting for messages...
+2026-04-30 17:22:43 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create, body: {"branchId":0,"deptId":0,"parentId":0,"orderDate":"2026-04-29","orderNumber":0,"opCode":"TEST","purpose":"TEST DOC2","flags":0,"typeId":1,"date":"2026-04-30","ccy":"GEL","amount":105.0000,"amountEqu":105.0000,"feeAmount":0.0000,"debitAccountId":202831503,"creditAccountId":202831508,"statusId":1,"channelId":1,"batchId":"3f848e76-7c35-4225-867b-e84a3f9f6c53","version":0,"debitCustomerId":950933,"debitAccount":"GE30BS0000095093336001","debitAccountName":"C/A IORAMASHVILI DAVIT","debitAccountTypeId":100,"creditCustomerId":950933,"creditAccount":"GE85BS0000095093345002","creditAccountName":"CARD ACC IORAMASHVILI DAVIT N1","creditAccountTypeId":200,"status":"Red","typeCode":"MemOrder","createdAt":"2026-04-30T17:22:43.6+04:00","counterCcy":"GEL","counterAmount":105.0000,"counterAmountEqu":105.0000,"id":534537847,"messageId":"0000000026A45991"}
+2026-04-30 17:22:44 [INFO] g.b.o.s.service.SegmentResolver - Resolved segment for customerId: 950933 -> Mass
+2026-04-30 17:22:44 [INFO] g.b.o.s.service.SegmentResolver - Resolved segment for customerId: 950933 -> Mass
+2026-04-30 17:22:44 [INFO] g.b.o.s.handler.MessageHandler - Processing transaction - debitSegment: Mass, creditSegment: Mass, channelId: 1, date: 2026-04-30
+2026-04-30 17:22:44 [INFO] g.b.o.s.r.StatisticsRepository - Upserting stats - debit: Mass, credit: Mass, channel: 1, date: 2026-04-30, delta: 1
+2026-04-30 17:22:44 [INFO] g.b.o.s.r.StatisticsRepository - Upsert successful
+2026-04-30 17:22:44 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Message acknowledged successfully
+2026-04-30 17:25:40 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Connected to RabbitMQ successfully
+2026-04-30 17:25:40 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Queue declared: basis.statistics.queue
+2026-04-30 17:25:40 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Waiting for messages...
+2026-04-30 17:25:46 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create
+2026-04-30 17:25:47 [INFO] g.b.o.s.service.SegmentResolver - Resolved segment for customerId: 950933 -> Mass
+2026-04-30 17:25:47 [INFO] g.b.o.s.service.SegmentResolver - Resolved segment for customerId: 950933 -> Mass
+2026-04-30 17:25:47 [INFO] g.b.o.s.handler.MessageHandler - Processing transaction - debitSegment: Mass, creditSegment: Mass, channelId: 1, date: 2026-04-30
+2026-04-30 17:25:47 [INFO] g.b.o.s.r.StatisticsRepository - Upserting stats - debit: Mass, credit: Mass, channel: 1, date: 2026-04-30, delta: 1
+2026-04-30 17:25:47 [INFO] g.b.o.s.r.StatisticsRepository - Upsert successful
+2026-04-30 17:25:47 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Message acknowledged successfully
+2026-04-30 17:25:56 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.delete
+2026-04-30 17:25:56 [INFO] g.b.o.s.service.SegmentResolver - Resolved segment for customerId: 950933 -> Mass
+2026-04-30 17:25:57 [INFO] g.b.o.s.service.SegmentResolver - Resolved segment for customerId: 950933 -> Mass
+2026-04-30 17:25:57 [INFO] g.b.o.s.handler.MessageHandler - Processing transaction - debitSegment: Mass, creditSegment: Mass, channelId: 1, date: 2026-04-30
+2026-04-30 17:25:57 [INFO] g.b.o.s.r.StatisticsRepository - Upserting stats - debit: Mass, credit: Mass, channel: 1, date: 2026-04-30, delta: -1
+2026-04-30 17:25:57 [INFO] g.b.o.s.r.StatisticsRepository - Upsert successful
+2026-04-30 17:25:57 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Message acknowledged successfully
+2026-04-30 17:28:13 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Connected to RabbitMQ successfully
+2026-04-30 17:28:13 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Queue declared: basis.statistics.queue
+2026-04-30 17:28:13 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Waiting for messages...
+2026-04-30 17:28:21 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create
+2026-04-30 17:28:22 [INFO] g.b.o.s.service.SegmentResolver - Resolved segment for customerId: 950933 -> Mass
+2026-04-30 17:28:22 [INFO] g.b.o.s.service.SegmentResolver - Resolved segment for customerId: 950933 -> Mass
+2026-04-30 17:28:22 [INFO] g.b.o.s.handler.MessageHandler - Processing transaction - debitSegment: Mass, creditSegment: Mass, channelId: 1, date: 2026-04-30
+2026-04-30 17:28:22 [INFO] g.b.o.s.r.StatisticsRepository - Upserting stats - debit: Mass, credit: Mass, channel: 1, date: 2026-04-30, delta: 1
+2026-04-30 17:28:22 [INFO] g.b.o.s.r.StatisticsRepository - Upsert successful
+2026-04-30 17:28:22 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Message acknowledged successfully
+2026-04-30 17:31:38 [INFO] ge.bsb.ops.statistics.Application - Starting ops-statistics-service...
+2026-04-30 17:31:39 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Connected to RabbitMQ successfully
+2026-04-30 17:31:39 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Queue declared: basis.statistics.queue
+2026-04-30 17:31:39 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Waiting for messages...
+2026-04-30 17:31:39 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create
+2026-04-30 17:31:39 [ERROR] g.b.o.s.consumer.RabbitMQConsumer - Failed to process message
+java.lang.NullPointerException: Cannot invoke "com.fasterxml.jackson.databind.JsonNode.asInt()" because the return value of "com.fasterxml.jackson.databind.JsonNode.get(String)" is null
+	at ge.bsb.ops.statistics.parser.MessageParser.parse(MessageParser.java:16)
+	at ge.bsb.ops.statistics.handler.MessageHandler.handle(MessageHandler.java:27)
+	at ge.bsb.ops.statistics.consumer.RabbitMQConsumer.lambda$getDeliverCallback$1(RabbitMQConsumer.java:70)
+	at com.rabbitmq.client.impl.recovery.AutorecoveringChannel$2.handleDelivery(AutorecoveringChannel.java:588)
+	at com.rabbitmq.client.impl.ConsumerDispatcher$5.run(ConsumerDispatcher.java:149)
+	at com.rabbitmq.client.impl.ConsumerWorkService$WorkPoolRunnable.run(ConsumerWorkService.java:111)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-04-30 17:31:39 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create
+2026-04-30 17:31:39 [ERROR] g.b.o.s.consumer.RabbitMQConsumer - Failed to process message
+java.lang.NullPointerException: Cannot invoke "com.fasterxml.jackson.databind.JsonNode.asInt()" because the return value of "com.fasterxml.jackson.databind.JsonNode.get(String)" is null
+	at ge.bsb.ops.statistics.parser.MessageParser.parse(MessageParser.java:16)
+	at ge.bsb.ops.statistics.handler.MessageHandler.handle(MessageHandler.java:27)
+	at ge.bsb.ops.statistics.consumer.RabbitMQConsumer.lambda$getDeliverCallback$1(RabbitMQConsumer.java:70)
+	at com.rabbitmq.client.impl.recovery.AutorecoveringChannel$2.handleDelivery(AutorecoveringChannel.java:588)
+	at com.rabbitmq.client.impl.ConsumerDispatcher$5.run(ConsumerDispatcher.java:149)
+	at com.rabbitmq.client.impl.ConsumerWorkService$WorkPoolRunnable.run(ConsumerWorkService.java:111)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-04-30 17:31:39 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Received message - routing key: b6.transaction.create
+2026-04-30 17:31:39 [ERROR] g.b.o.s.consumer.RabbitMQConsumer - Failed to process message
+java.lang.NullPointerException: Cannot invoke "com.fasterxml.jackson.databind.JsonNode.asInt()" because the return value of "com.fasterxml.jackson.databind.JsonNode.get(String)" is null
+	at ge.bsb.ops.statistics.parser.MessageParser.parse(MessageParser.java:16)
+	at ge.bsb.ops.statistics.handler.MessageHandler.handle(MessageHandler.java:27)
+	at ge.bsb.ops.statistics.consumer.RabbitMQConsumer.lambda$getDeliverCallback$1(RabbitMQConsumer.java:70)
+	at com.rabbitmq.client.impl.recovery.AutorecoveringChannel$2.handleDelivery(AutorecoveringChannel.java:588)
+	at com.rabbitmq.client.impl.ConsumerDispatcher$5.run(ConsumerDispatcher.java:149)
+	at com.rabbitmq.client.impl.ConsumerWorkService$WorkPoolRunnable.run(ConsumerWorkService.java:111)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-04-30 17:32:52 [INFO] ge.bsb.ops.statistics.Application - Shutdown signal received, stopping consumer...
+2026-04-30 17:32:52 [INFO] g.b.o.s.consumer.RabbitMQConsumer - Shutting down consumer...
+2026-04-30 17:32:52 [INFO] ge.bsb.ops.statistics.Application - Consumer stopped gracefully
