@@ -4,5 +4,6 @@ out/
 !**/src/test/**/out/
 .kotlin
 
-config.properties
+src/config.properties
 .idea/
+logs/
