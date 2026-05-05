@@ -61,45 +61,57 @@ IntelliJ-ის Run Configuration-ში დაამატეთ VM option:
 ## პროექტის სტრუქტურა
 
 ```
-src/
-  ge/bsb/ops/statistics/
-    Application.java                 — საწყისი წერტილი
-    consumer/
-      RabbitMQConsumer.java          — RabbitMQ კავშირი და მესიჯების მიღება
-    handler/
-      MessageHandler.java            — დამუშავების პროცესის კოორდინატორი
-    model/
-      Transaction.java               — ტრანზაქციის მოდელი
-      TransactionMessage.java        — RabbitMQ მესიჯის wrapper
-    parser/
-      MessageParser.java             — JSON body-ს პარსინგი Transaction-ად
-    repository/
-      DatabaseConnection.java        — SQL Server კავშირი
-      StatisticsRepository.java      — სტატისტიკის ჩაწერა ბაზაში
-    service/
-      SegmentResolver.java           — კლიენტის სეგმენტის განსაზღვრა SQL-იდან
+ops-statistics-service/
+  src/                               — საწყისი კოდი
+  test/                              — Unit ტესტები
+  lib/                               — დამოკიდებულების jar ფაილები
+  sql/                               — SQL სკრიპტები
+  config.properties.example          — კონფიგურაციის შაბლონი
+  README.md
+  .gitignore
+
+src/ge/bsb/ops/statistics/
+  Application.java                   — საწყისი წერტილი
+  consumer/
+    RabbitMQConsumer.java            — RabbitMQ კავშირი და მესიჯების მიღება
+  handler/
+    MessageHandler.java              — დამუშავების პროცესის კოორდინატორი
+  model/
+    Transaction.java                 — ტრანზაქციის მოდელი
+    TransactionMessage.java          — RabbitMQ მესიჯის wrapper
+  parser/
+    MessageParser.java               — JSON body-ს პარსინგი Transaction-ად
+  repository/
+    DatabaseConnection.java          — SQL Server კავშირი
+    StatisticsRepository.java        — სტატისტიკის ჩაწერა ბაზაში
+  service/
+    SegmentResolver.java             — კლიენტის სეგმენტის განსაზღვრა SQL-იდან
 ```
 
 ## მონაცემთა ბაზა
 
 სტატისტიკა ინახება `basis.OPS_SEGMENT_STATISTICS_DAVIT` ცხრილში:
 
-| სვეტი | ტიპი | აღწერა |
-|---|---|---|
-| debit_segment | VARCHAR(10) | დებეტის კლიენტის სეგმენტი |
+| სვეტი          | ტიპი        | აღწერა                     |
+|----------------|-------------|----------------------------|
+| debit_segment  | VARCHAR(10) | დებეტის კლიენტის სეგმენტი  |
 | credit_segment | VARCHAR(10) | კრედიტის კლიენტის სეგმენტი |
-| channel_id | INT | საბუთის არხი |
-| doc_date | DATE | საბუთის თარიღი |
-| op_count | INT | ტრანზაქციების რაოდენობა |
+| channel_id     | INT         | საბუთის არხი               |
+| doc_date       | DATE        | საბუთის თარიღი             |
+| op_count       | INT         | ტრანზაქციების რაოდენობა    |
 
 > `op_count` სვეტზე დაწესებულია CHECK constraint (`CHK_op_count_non_negative`), რომელიც არ უშვებს უარყოფით მნიშვნელობებს. თუ წაშლის ოპერაცია გამოიწვევს `op_count`-ის ნულზე დაბლა ჩავარდნას, სერვისი დააიგნორებს ამ ოპერაციას და წერს შესაბამის გაფრთხილებას ლოგში.
 
+ცხრილის შექმნის სკრიპტი მოთავსებულია `sql/create_tables.sql`-ში.
+
+> **შენიშვნა:** ცხრილი უკვე შექმნილია დევ სერვერზე (`BANK2000`). სკრიპტი საჭიროა მხოლოდ ახალი გარემოს კონფიგურაციისას.
+
 ## RabbitMQ
 
-| პარამეტრი | მნიშვნელობა |
-|---|---|
-| Exchange | B6.Transactions |
-| ტიპი | Topic |
+| პარამეტრი    | მნიშვნელობა                                      |
+|--------------|--------------------------------------------------|
+| Exchange     | B6.Transactions                                  |
+| ტიპი         | Topic                                            |
 | Routing keys | `b6.transaction.create`, `b6.transaction.delete` |
 
 - `b6.transaction.create` — `op_count` იზრდება 1-ით
@@ -111,17 +123,21 @@ src/
 
 ## დამოკიდებულებები
 
-| ბიბლიოთეკა | ვერსია | დანიშნულება |
-|---|---|---|
-| amqp-client | 5.18.0 | RabbitMQ კლიენტი |
-| mssql-jdbc | 13.4.0.jre11 | SQL Server JDBC დრაივერი |
-| jackson-databind | 2.17.2 | JSON პარსინგი |
-| jackson-core | 2.17.2 | JSON პარსინგი |
-| jackson-annotations | 2.17.2 | JSON პარსინგი |
-| slf4j-api | 2.0.9 | ლოგირების API |
-| logback-classic | 1.5.32 | ლოგირების იმპლემენტაცია |
-| logback-core | 1.5.32 | ლოგირების იმპლემენტაცია |
-| junit | 4.13.2 | Unit ტესტები |
-| hamcrest-core | 1.3 | Unit ტესტები |
+ყველა საჭირო jar ფაილი მოთავსებულია `lib/` საქაღალდეში. IntelliJ-ში პროექტის გახსნის შემდეგ:
 
-> ყველა jar ფაილი ხელით არის დამატებული პროექტის `lib/` საქაღალდეში (Maven/Gradle არ გამოიყენება).
+1. **File → Project Structure → Modules → Dependencies**
+2. დააჭირეთ `+` → **JARs or Directories**
+3. მიუთითეთ `lib/` საქაღალდე და დაამატეთ ყველა jar
+
+| ბიბლიოთეკა          | ვერსია       | დანიშნულება              |
+|---------------------|--------------|--------------------------|
+| amqp-client         | 5.18.0       | RabbitMQ კლიენტი         |
+| mssql-jdbc          | 13.4.0.jre11 | SQL Server JDBC დრაივერი |
+| jackson-databind    | 2.17.2       | JSON პარსინგი            |
+| jackson-core        | 2.17.2       | JSON პარსინგი            |
+| jackson-annotations | 2.17.2       | JSON პარსინგი            |
+| slf4j-api           | 2.0.9        | ლოგირების API            |
+| logback-classic     | 1.5.32       | ლოგირების იმპლემენტაცია  |
+| logback-core        | 1.5.32       | ლოგირების იმპლემენტაცია  |
+| junit               | 4.13.2       | Unit ტესტები             |
+| hamcrest-core       | 1.3          | Unit ტესტები             |
