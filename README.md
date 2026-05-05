@@ -48,6 +48,9 @@ rabbitmq.exchange=
 sqlserver.url=
 ```
 
+> პროდაქშენ გაშვებისთვის ფაილი უნდა მოთავსდეს პროექტის root დირექტორიაში.
+> ტესტების გასაშვებად კი `src/` საქაღალდეში.
+
 ## გაშვება
 
 IntelliJ-ის Run Configuration-ში დაამატეთ VM option:
