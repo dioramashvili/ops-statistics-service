@@ -19,7 +19,20 @@ public class StatisticsRepository {
         log.info("Upserting stats - debit: {}, credit: {}, channel: {}, date: {}, delta: {}", debitSegment, creditSegment, channelId, date, delta);
 
         try (Connection con = databaseConnection.getConnection()) {
-            try (PreparedStatement stmt = con.prepareStatement("MERGE basis.OPS_SEGMENT_STATISTICS_DAVIT AS target\n" + "USING (VALUES (?, ?, ?, ?)) AS source (debit_segment, credit_segment, channel_id, doc_date)\n" + "ON target.debit_segment = source.debit_segment\n" + "AND target.credit_segment = source.credit_segment\n" + "AND target.channel_id = source.channel_id\n" + "AND target.doc_date = source.doc_date\n" + "WHEN MATCHED THEN\n" + "    UPDATE SET op_count = target.op_count + ?\n" + "WHEN NOT MATCHED AND ? > 0 THEN\n" + "    INSERT (debit_segment, credit_segment, channel_id, doc_date, op_count)\n" + "    VALUES (?, ?, ?, ?, ?);")) {
+            try (PreparedStatement stmt = con.prepareStatement(
+                    """
+                            MERGE basis.OPS_SEGMENT_STATISTICS_DAVIT AS target
+                            USING (VALUES (?, ?, ?, ?)) AS source (debit_segment, credit_segment, channel_id, doc_date)
+                            ON target.debit_segment = source.debit_segment
+                            AND target.credit_segment = source.credit_segment
+                            AND target.channel_id = source.channel_id
+                            AND target.doc_date = source.doc_date
+                            WHEN MATCHED THEN
+                                UPDATE SET op_count = target.op_count + ?
+                            WHEN NOT MATCHED AND ? > 0 THEN
+                                INSERT (debit_segment, credit_segment, channel_id, doc_date, op_count)
+                                VALUES (?, ?, ?, ?, ?);
+                            """)) {
                 // USING (VALUES (?, ?, ?, ?)) — source values
                 stmt.setString(1, debitSegment);
                 stmt.setString(2, creditSegment);
