@@ -17,10 +17,6 @@ public class MessageParser {
     public Transaction parse(String body) throws Exception {
         JsonNode root = objectMapper.readTree(body);
 
-        if (root.get("debitCustomerId") == null && root.get("creditCustomerId") == null) {
-            log.warn("Message missing customer IDs, skipping. Body: {}", body);
-            return null;
-        }
         Transaction transaction = new Transaction();
         transaction.setDebitCustomerId(
                 root.has("debitCustomerId") ? root.get("debitCustomerId").asInt() : 0
