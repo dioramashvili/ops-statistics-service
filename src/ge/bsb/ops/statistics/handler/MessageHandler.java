@@ -1,6 +1,5 @@
 package ge.bsb.ops.statistics.handler;
 
-import ge.bsb.ops.statistics.consumer.RabbitMQConsumer;
 import ge.bsb.ops.statistics.model.Transaction;
 import ge.bsb.ops.statistics.model.TransactionMessage;
 import ge.bsb.ops.statistics.parser.MessageParser;

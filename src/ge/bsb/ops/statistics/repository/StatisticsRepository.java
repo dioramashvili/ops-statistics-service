@@ -1,6 +1,5 @@
 package ge.bsb.ops.statistics.repository;
 
-import ge.bsb.ops.statistics.consumer.RabbitMQConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
