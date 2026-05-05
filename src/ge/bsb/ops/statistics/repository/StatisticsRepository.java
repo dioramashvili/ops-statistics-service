@@ -50,8 +50,14 @@ public class StatisticsRepository {
                 stmt.setDate(10, java.sql.Date.valueOf(date));
                 stmt.setInt(11, delta);
 
-                stmt.executeUpdate();
-                log.info("Upsert successful");
+                int rowsAffected = stmt.executeUpdate();
+
+                if (rowsAffected == 0) {
+                    log.warn("Delete ignored — statistics row does not exist for debit: {}, credit: {}, channel: {}, date: {}",
+                            debitSegment, creditSegment, channelId, date);
+                } else {
+                    log.info("Upsert successful");
+                }
             }
         } catch (SQLException e) {
             if (e.getMessage().contains("CHK_op_count_non_negative")) {
