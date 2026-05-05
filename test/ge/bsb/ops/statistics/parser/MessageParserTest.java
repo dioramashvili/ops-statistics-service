@@ -20,10 +20,22 @@ public class MessageParserTest {
     }
 
     @Test
-    public void testParseReturnNullWhenMissingCustomerIds() throws Exception {
+    public void testParseDefaultsMissingCustomerIdsToZero() throws Exception {
         String body = "{\"channelId\":1,\"date\":\"2026-04-30\"}";
         Transaction transaction = parser.parse(body);
 
-        assertNull(transaction);
+        assertEquals(0, transaction.getDebitCustomerId());
+        assertEquals(0, transaction.getCreditCustomerId());
+    }
+
+    @Test
+    public void testParserDefaultsMissingCustomerIdToZero() throws Exception {
+        ge.bsb.ops.statistics.parser.MessageParser parser =
+                new ge.bsb.ops.statistics.parser.MessageParser();
+        String body = "{\"channelId\":1,\"date\":\"2026-05-01\"}";
+        ge.bsb.ops.statistics.model.Transaction transaction = parser.parse(body);
+
+        assertEquals(0, transaction.getDebitCustomerId());
+        assertEquals(0, transaction.getCreditCustomerId());
     }
 }
