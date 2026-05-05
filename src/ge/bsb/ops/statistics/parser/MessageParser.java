@@ -2,7 +2,6 @@ package ge.bsb.ops.statistics.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ge.bsb.ops.statistics.consumer.RabbitMQConsumer;
 import ge.bsb.ops.statistics.model.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
