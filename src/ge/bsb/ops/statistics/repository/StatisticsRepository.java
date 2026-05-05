@@ -57,7 +57,6 @@ public class StatisticsRepository {
             if (e.getMessage().contains("CHK_op_count_non_negative")) {
                 log.warn("Skipping delete — op_count would go below zero for debit: {}, credit: {}, channel: {}, date: {}", debitSegment, creditSegment, channelId, date);
             } else {
-                log.error("Upsert failed", e);
                 throw new RuntimeException(e);
             }
         }
