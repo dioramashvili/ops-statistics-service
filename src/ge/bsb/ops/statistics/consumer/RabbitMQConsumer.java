@@ -37,6 +37,9 @@ public class RabbitMQConsumer {
         factory.setPassword(props.getProperty("rabbitmq.password"));
         factory.setVirtualHost(props.getProperty("rabbitmq.virtualhost"));
 
+        factory.setAutomaticRecoveryEnabled(true);
+        factory.setNetworkRecoveryInterval(5000); // retry every 5 seconds
+
         connection = factory.newConnection();
         log.info("Connected to RabbitMQ successfully");
         channel = connection.createChannel();
