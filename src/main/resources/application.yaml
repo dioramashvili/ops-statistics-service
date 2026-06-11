@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: ops-statistics-service-spring
+
+  datasource:
+    url: jdbc:sqlserver://devcluster\devserv;databaseName=BANK2000;integratedSecurity=true;encrypt=false
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  rabbitmq:
+    host: test-rabbit-srv.bsb.ge
+    port: 5672
+    username: test
+    password: Qwer@1234
+    virtual-host: B6dev
+
+app:
+  rabbitmq:
+    queue: basis.statistics.queue
+    exchange: B6.Transactions
+    create-routing-key: b6.transaction.create
+    delete-routing-key: b6.transaction.delete

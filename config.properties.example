@@ -1,8 +1,0 @@
-rabbitmq.host=
-rabbitmq.port=
-rabbitmq.username=
-rabbitmq.password=
-rabbitmq.virtualhost=
-rabbitmq.queue=
-rabbitmq.exchange=
-sqlserver.url=
