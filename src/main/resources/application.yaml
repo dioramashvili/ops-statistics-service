@@ -15,7 +15,11 @@ spring:
 
 app:
   rabbitmq:
-    queue: basis.statistics.queue
+    queue: basis.statistics.queue.v2
     exchange: B6.Transactions
     create-routing-key: b6.transaction.create
     delete-routing-key: b6.transaction.delete
+
+    dlx: basis.statistics.queue.v2.dlx
+    dlq: basis.statistics.queue.v2.dlq
+    dead-letter-routing-key: basis.statistics.queue.v2.dead
