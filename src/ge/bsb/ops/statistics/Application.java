@@ -18,7 +18,7 @@ public class Application {
         SegmentResolver resolver = new SegmentResolver();
         StatisticsRepository repository = new StatisticsRepository();
         MessageHandler handler = new MessageHandler(parser, resolver, repository);
-        RabbitMQConsumer consumer = new RabbitMQConsumer(handler);
+        RabbitMQConsumer consumer = new RabbitMQConsumer(handler, parser);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Shutdown signal received, stopping consumer...");
             try {

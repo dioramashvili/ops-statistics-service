@@ -1,7 +1,6 @@
 package ge.bsb.ops.statistics.handler;
 
 import ge.bsb.ops.statistics.model.Transaction;
-import ge.bsb.ops.statistics.model.TransactionMessage;
 import ge.bsb.ops.statistics.parser.MessageParser;
 import ge.bsb.ops.statistics.repository.StatisticsRepository;
 import ge.bsb.ops.statistics.service.SegmentResolver;
@@ -22,8 +21,7 @@ public class MessageHandler {
         this.statisticsRepository = statisticsRepository;
     }
 
-    public void handle(TransactionMessage message) throws Exception {
-        Transaction transaction = messageParser.parse(message.body());
+    public void handle(Transaction transaction, String routingKey) throws Exception {
         if (transaction == null) return;
         String debitSegment = segmentResolver.resolve(transaction.getDebitCustomerId());
         String creditSegment = segmentResolver.resolve(transaction.getCreditCustomerId());
@@ -33,7 +31,7 @@ public class MessageHandler {
         }
         int channelId = transaction.getChannelId();
         LocalDate date = transaction.getDate();
-        String routingKey = message.routingKey();
+
         log.info("Processing transaction - debitSegment: {}, creditSegment: {}, channelId: {}, date: {}",
                 debitSegment, creditSegment, channelId, date);
         statisticsRepository.upsert(debitSegment, creditSegment, channelId, date, routingKey);

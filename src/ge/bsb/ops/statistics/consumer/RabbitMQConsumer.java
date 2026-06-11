@@ -2,7 +2,8 @@ package ge.bsb.ops.statistics.consumer;
 
 import com.rabbitmq.client.*;
 import ge.bsb.ops.statistics.handler.MessageHandler;
-import ge.bsb.ops.statistics.model.TransactionMessage;
+import ge.bsb.ops.statistics.model.Transaction;
+import ge.bsb.ops.statistics.parser.MessageParser;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -17,9 +18,11 @@ public class RabbitMQConsumer {
     private Connection connection;
     private Channel channel;
     private final MessageHandler messageHandler;
+    private final MessageParser parser;
 
-    public RabbitMQConsumer(MessageHandler messageHandler) {
+    public RabbitMQConsumer(MessageHandler messageHandler, MessageParser parser) {
         this.messageHandler = messageHandler;
+        this.parser = parser;
     }
 
     public void start() throws Exception {
@@ -73,9 +76,9 @@ public class RabbitMQConsumer {
             long deliveryTag = delivery.getEnvelope().getDeliveryTag();
 
             try {
-                TransactionMessage message = new TransactionMessage(routingKey, body);
+                Transaction transaction = parser.parse(body);
                 log.info("Received message - routing key: {}", routingKey);
-                messageHandler.handle(message);
+                messageHandler.handle(transaction, routingKey);
                 channel.basicAck(deliveryTag, false);
                 log.info("Message acknowledged successfully");
 
