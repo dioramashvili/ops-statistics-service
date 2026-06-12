@@ -17,43 +17,54 @@ public class StatisticsRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void upsert(String debitSegment, String creditSegment, int channelId, LocalDate date, int delta) {
-        log.info("Upserting stats - debit: {}, credit: {}, channel: {}, date: {}, delta: {}",
-                debitSegment, creditSegment, channelId, date, delta);
+    public void increment(String debitSegment, String creditSegment, int channelId, LocalDate date) {
+        jdbcTemplate.update(
+                """
+                        MERGE basis.OPS_SEGMENT_STATISTICS_DAVIT AS target
+                        USING (VALUES (?, ?, ?, ?)) AS source (debit_segment, credit_segment, channel_id, doc_date)
+                        ON target.debit_segment = source.debit_segment
+                        AND target.credit_segment = source.credit_segment
+                        AND target.channel_id = source.channel_id
+                        AND target.doc_date = source.doc_date
+                        WHEN MATCHED THEN
+                            UPDATE SET op_count = target.op_count + 1
+                        WHEN NOT MATCHED THEN
+                            INSERT (debit_segment, credit_segment, channel_id, doc_date, op_count)
+                            VALUES (?, ?, ?, ?, 1);
+                        """,
+                debitSegment,
+                creditSegment,
+                channelId,
+                java.sql.Date.valueOf(date),
 
+                debitSegment,
+                creditSegment,
+                channelId,
+                java.sql.Date.valueOf(date)
+        );
+        log.info("Statistics incremented - debit: {}, credit: {}, channel: {}, date: {}",
+                debitSegment, creditSegment, channelId, date);
+    }
+
+    public void decrement(String debitSegment, String creditSegment, int channelId, LocalDate date) {
         try {
             int rowsAffected = jdbcTemplate.update(
                     """
-                            MERGE basis.OPS_SEGMENT_STATISTICS_DAVIT AS target
-                            USING (VALUES (?, ?, ?, ?)) AS source (debit_segment, credit_segment, channel_id, doc_date)
-                            ON target.debit_segment = source.debit_segment
-                            AND target.credit_segment = source.credit_segment
-                            AND target.channel_id = source.channel_id
-                            AND target.doc_date = source.doc_date
-                            WHEN MATCHED THEN
-                                UPDATE SET op_count = target.op_count + ?
-                            WHEN NOT MATCHED AND ? > 0 THEN
-                                INSERT (debit_segment, credit_segment, channel_id, doc_date, op_count)
-                                VALUES (?, ?, ?, ?, ?);
+                            UPDATE basis.OPS_SEGMENT_STATISTICS_DAVIT SET op_count = op_count - 1
+                            WHERE debit_segment = ?
+                            AND credit_segment = ?
+                            AND channel_id = ?
+                            AND doc_date = ?
                             """,
                     debitSegment,
                     creditSegment,
                     channelId,
-                    java.sql.Date.valueOf(date),
-                    delta,
-                    delta,
-                    debitSegment,
-                    creditSegment,
-                    channelId,
-                    java.sql.Date.valueOf(date),
-                    delta
+                    java.sql.Date.valueOf(date)
             );
 
             if (rowsAffected == 0) {
                 log.warn("Delete ignored — statistics row does not exist for debit: {}, credit: {}, channel: {}, date: {}",
                         debitSegment, creditSegment, channelId, date);
-            } else {
-                log.info("Upsert successful");
             }
 
         } catch (Exception e) {

@@ -48,11 +48,13 @@ public class MessageHandler {
             return;
         }
 
+        String routingKey = message.routingKey();
         Transaction transaction = messageParser.parse(message.body());
         if (transaction == null) {
             log.warn("Skipping message - parser returned null");
             return;
         }
+
         String debitSegment = segmentResolver.resolve(transaction.getDebitCustomerId());
         String creditSegment = segmentResolver.resolve(transaction.getCreditCustomerId());
         if ("N/A".equals(debitSegment) && "N/A".equals(creditSegment)) {
@@ -64,15 +66,12 @@ public class MessageHandler {
         log.info("Processing transaction - debitSegment: {}, creditSegment: {}, channelId: {}, date: {}",
                 debitSegment, creditSegment, channelId, date);
 
-        int delta = resolveDelta(message.routingKey());
-        statisticsRepository.upsert(debitSegment, creditSegment, channelId, date, delta);
-    }
-
-    private int resolveDelta(String routingKey) {
-        if (createRoutingKey.equals(routingKey)) return 1;
-
-        if (deleteRoutingKey.equals(routingKey)) return -1;
-
-        throw new IllegalArgumentException("Unsupported routing key: " + routingKey);
+        if (createRoutingKey.equals(routingKey)) {
+            statisticsRepository.increment(debitSegment, creditSegment, channelId, date);
+        } else if (deleteRoutingKey.equals(routingKey)) {
+            statisticsRepository.decrement(debitSegment, creditSegment, channelId, date);
+        } else {
+            throw new IllegalArgumentException("Unsupported routing key: " + routingKey);
+        }
     }
 }
