@@ -24,18 +24,18 @@ public class StatisticsRepository {
         try {
             int rowsAffected = jdbcTemplate.update(
                     """
-                    MERGE basis.OPS_SEGMENT_STATISTICS_DAVIT AS target
-                    USING (VALUES (?, ?, ?, ?)) AS source (debit_segment, credit_segment, channel_id, doc_date)
-                    ON target.debit_segment = source.debit_segment
-                    AND target.credit_segment = source.credit_segment
-                    AND target.channel_id = source.channel_id
-                    AND target.doc_date = source.doc_date
-                    WHEN MATCHED THEN
-                        UPDATE SET op_count = target.op_count + ?
-                    WHEN NOT MATCHED AND ? > 0 THEN
-                        INSERT (debit_segment, credit_segment, channel_id, doc_date, op_count)
-                        VALUES (?, ?, ?, ?, ?);
-                    """,
+                            MERGE basis.OPS_SEGMENT_STATISTICS_DAVIT AS target
+                            USING (VALUES (?, ?, ?, ?)) AS source (debit_segment, credit_segment, channel_id, doc_date)
+                            ON target.debit_segment = source.debit_segment
+                            AND target.credit_segment = source.credit_segment
+                            AND target.channel_id = source.channel_id
+                            AND target.doc_date = source.doc_date
+                            WHEN MATCHED THEN
+                                UPDATE SET op_count = target.op_count + ?
+                            WHEN NOT MATCHED AND ? > 0 THEN
+                                INSERT (debit_segment, credit_segment, channel_id, doc_date, op_count)
+                                VALUES (?, ?, ?, ?, ?);
+                            """,
                     debitSegment,
                     creditSegment,
                     channelId,

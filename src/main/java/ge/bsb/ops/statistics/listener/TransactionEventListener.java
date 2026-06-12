@@ -26,11 +26,12 @@ public class TransactionEventListener {
         long deliveryTag = message.getMessageProperties().getDeliveryTag();
         String routingKey = message.getMessageProperties().getReceivedRoutingKey();
         String body = new String(message.getBody(), StandardCharsets.UTF_8);
+        String messageId = message.getMessageProperties().getMessageId();
 
         try {
             log.info("Received message - routing key: {}", routingKey);
 
-            TransactionMessage transactionMessage = new TransactionMessage(routingKey, body);
+            TransactionMessage transactionMessage = new TransactionMessage(messageId, routingKey, body);
             messageHandler.handle(transactionMessage);
 
             channel.basicAck(deliveryTag, false);

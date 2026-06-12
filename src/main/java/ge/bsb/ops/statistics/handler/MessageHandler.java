@@ -3,6 +3,7 @@ package ge.bsb.ops.statistics.handler;
 import ge.bsb.ops.statistics.model.Transaction;
 import ge.bsb.ops.statistics.model.TransactionMessage;
 import ge.bsb.ops.statistics.parser.MessageParser;
+import ge.bsb.ops.statistics.repository.ProcessedMessageRepository;
 import ge.bsb.ops.statistics.repository.StatisticsRepository;
 import ge.bsb.ops.statistics.service.SegmentResolver;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ public class MessageHandler {
     private final MessageParser messageParser;
     private final SegmentResolver segmentResolver;
     private final StatisticsRepository statisticsRepository;
+    private final ProcessedMessageRepository processedMessageRepository;
     private final String createRoutingKey;
     private final String deleteRoutingKey;
 
@@ -26,18 +28,26 @@ public class MessageHandler {
             MessageParser messageParser,
             SegmentResolver segmentResolver,
             StatisticsRepository statisticsRepository,
+            ProcessedMessageRepository processedMessageRepository,
             @Value("${app.rabbitmq.create-routing-key}") String createRoutingKey,
             @Value("${app.rabbitmq.delete-routing-key}") String deleteRoutingKey
     ) {
         this.messageParser = messageParser;
         this.segmentResolver = segmentResolver;
         this.statisticsRepository = statisticsRepository;
+        this.processedMessageRepository = processedMessageRepository;
         this.createRoutingKey = createRoutingKey;
         this.deleteRoutingKey = deleteRoutingKey;
     }
 
     @Transactional
     public void handle(TransactionMessage message) throws Exception {
+
+        if (!processedMessageRepository.tryMarkProcessed(message.messageId())) {
+            log.info("Skipping duplicate message: {}", message.messageId());
+            return;
+        }
+
         Transaction transaction = messageParser.parse(message.body());
         if (transaction == null) {
             log.warn("Skipping message - parser returned null");
