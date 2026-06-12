@@ -43,6 +43,16 @@ public class MessageHandler {
         String routingKey = message.routingKey();
         log.info("Processing transaction - debitSegment: {}, creditSegment: {}, channelId: {}, date: {}",
                 debitSegment, creditSegment, channelId, date);
-        statisticsRepository.upsert(debitSegment, creditSegment, channelId, date, routingKey);
+
+        int delta = resolveDelta(message.routingKey());
+        statisticsRepository.upsert(debitSegment, creditSegment, channelId, date, delta);
+    }
+
+    private int resolveDelta(String routingKey) {
+        return switch (routingKey) {
+            case "b6.transaction.create" -> 1;
+            case "b6.transaction.delete" -> -1;
+            default -> throw new IllegalArgumentException("Unsupported routing key: " + routingKey);
+        };
     }
 }

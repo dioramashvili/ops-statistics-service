@@ -17,9 +17,7 @@ public class StatisticsRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void upsert(String debitSegment, String creditSegment, int channelId, LocalDate date, String routingKey) {
-        int delta = routingKey.equals("b6.transaction.create") ? 1 : -1;
-
+    public void upsert(String debitSegment, String creditSegment, int channelId, LocalDate date, int delta) {
         log.info("Upserting stats - debit: {}, credit: {}, channel: {}, date: {}, delta: {}",
                 debitSegment, creditSegment, channelId, date, delta);
 
