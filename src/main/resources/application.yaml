@@ -12,6 +12,8 @@ spring:
     username: test
     password: REDACTED
     virtual-host: B6dev
+  profiles:
+    active: dev
 
 app:
   rabbitmq:
