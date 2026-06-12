@@ -7,6 +7,7 @@ import ge.bsb.ops.statistics.repository.StatisticsRepository;
 import ge.bsb.ops.statistics.service.SegmentResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,11 +19,21 @@ public class MessageHandler {
     private final MessageParser messageParser;
     private final SegmentResolver segmentResolver;
     private final StatisticsRepository statisticsRepository;
+    private final String createRoutingKey;
+    private final String deleteRoutingKey;
 
-    public MessageHandler(MessageParser messageParser, SegmentResolver segmentResolver, StatisticsRepository statisticsRepository) {
+    public MessageHandler(
+            MessageParser messageParser,
+            SegmentResolver segmentResolver,
+            StatisticsRepository statisticsRepository,
+            @Value("${app.rabbitmq.create-routing-key}") String createRoutingKey,
+            @Value("${app.rabbitmq.delete-routing-key}") String deleteRoutingKey
+    ) {
         this.messageParser = messageParser;
         this.segmentResolver = segmentResolver;
         this.statisticsRepository = statisticsRepository;
+        this.createRoutingKey = createRoutingKey;
+        this.deleteRoutingKey = deleteRoutingKey;
     }
 
     @Transactional
@@ -40,7 +51,6 @@ public class MessageHandler {
         }
         int channelId = transaction.getChannelId();
         LocalDate date = transaction.getDate();
-        String routingKey = message.routingKey();
         log.info("Processing transaction - debitSegment: {}, creditSegment: {}, channelId: {}, date: {}",
                 debitSegment, creditSegment, channelId, date);
 
@@ -49,10 +59,10 @@ public class MessageHandler {
     }
 
     private int resolveDelta(String routingKey) {
-        return switch (routingKey) {
-            case "b6.transaction.create" -> 1;
-            case "b6.transaction.delete" -> -1;
-            default -> throw new IllegalArgumentException("Unsupported routing key: " + routingKey);
-        };
+        if (createRoutingKey.equals(routingKey)) return 1;
+
+        if (deleteRoutingKey.equals(routingKey)) return -1;
+
+        throw new IllegalArgumentException("Unsupported routing key: " + routingKey);
     }
 }
