@@ -2,6 +2,9 @@ spring:
   application:
     name: ops-statistics-service-spring
 
+  main:
+    web-application-type: none
+
   datasource:
     url: jdbc:sqlserver://devcluster\devserv;databaseName=BANK2000;integratedSecurity=true;encrypt=false
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
