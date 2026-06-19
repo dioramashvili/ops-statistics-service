@@ -20,7 +20,7 @@ public class ProcessedMessageRepository {
         try {
             int rowsAffected = jdbcTemplate.update(
                     """
-                            INSERT (message_id)
+                            INSERT INTO basis.OPS_PROCESSED_MESSAGES_DAVIT (message_id)
                                 VALUES (?);
                             """,
                     messageId
