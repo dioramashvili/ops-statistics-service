@@ -2,6 +2,7 @@ package ge.bsb.ops.statistics.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -47,9 +48,13 @@ public class SegmentResolver {
             cache.put(customerId, segment);
             return segment;
 
-        } catch (Exception e) {
-            log.error("Failed to resolve segment for customerId: {}", customerId, e);
-            return "N/A";
+        } catch (DataAccessException e) {
+            // Do not swallow DB failures: returning "N/A" here would let a real
+            // transaction be treated as "no client", committed and acked, and lost
+            // forever. Propagate so the message is nacked and retried / dead-lettered.
+            log.error("Failed to resolve segment for customerId: {} - propagating to abort message processing",
+                    customerId, e);
+            throw e;
         }
     }
 

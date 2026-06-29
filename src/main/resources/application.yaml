@@ -28,3 +28,8 @@ app:
     dlx: basis.statistics.queue.v2.dlx
     dlq: basis.statistics.queue.v2.dlq
     dead-letter-routing-key: basis.statistics.queue.v2.dead
+
+  retry:
+    max-attempts: 3
+    initial-interval-ms: 500
+    multiplier: 2.0
