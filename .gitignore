@@ -31,3 +31,22 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local / secret config (never commit credentials) ###
+# Local Spring profile overrides for secrets and machine-specific config
+application-local.yaml
+application-local.yml
+application-local.properties
+application-secret.yaml
+application-secret.yml
+application-secret.properties
+application-secrets.yaml
+application-secrets.yml
+application-secrets.properties
+**/application-local.*
+**/application-secret.*
+**/application-secrets.*
+# Environment variable files
+.env
+.env.*
+!.env.example

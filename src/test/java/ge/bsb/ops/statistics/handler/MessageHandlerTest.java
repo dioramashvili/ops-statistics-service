@@ -57,6 +57,44 @@ class MessageHandlerTest {
     }
 
     @Test
+    void shouldRejectMessageWithNullMessageId() {
+        TransactionMessage message = new TransactionMessage(
+                null,
+                "b6.transaction.create",
+                "{}"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> messageHandler.handle(message)
+        );
+
+        verifyNoInteractions(processedMessageRepository);
+        verifyNoInteractions(messageParser);
+        verifyNoInteractions(segmentResolver);
+        verifyNoInteractions(statisticsRepository);
+    }
+
+    @Test
+    void shouldRejectMessageWithBlankMessageId() {
+        TransactionMessage message = new TransactionMessage(
+                "   ",
+                "b6.transaction.create",
+                "{}"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> messageHandler.handle(message)
+        );
+
+        verifyNoInteractions(processedMessageRepository);
+        verifyNoInteractions(messageParser);
+        verifyNoInteractions(segmentResolver);
+        verifyNoInteractions(statisticsRepository);
+    }
+
+    @Test
     void shouldIncrementStatisticsForCreateMessage() throws Exception {
         TransactionMessage message = new TransactionMessage(
                 "msg-1",

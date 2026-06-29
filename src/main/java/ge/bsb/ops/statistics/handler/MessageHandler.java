@@ -43,8 +43,14 @@ public class MessageHandler {
     @Transactional
     public void handle(TransactionMessage message) throws Exception {
 
-        if (!processedMessageRepository.tryMarkProcessed(message.messageId())) {
-            log.info("Skipping duplicate message: {}", message.messageId());
+        String messageId = message.messageId();
+        if (messageId == null || messageId.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Message is missing a messageId - cannot guarantee idempotent processing");
+        }
+
+        if (!processedMessageRepository.tryMarkProcessed(messageId)) {
+            log.info("Skipping duplicate message: {}", messageId);
             return;
         }
 
