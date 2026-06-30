@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -20,9 +21,14 @@ public class DeadLetterListener {
     private static final Logger log = LoggerFactory.getLogger(DeadLetterListener.class);
 
     private final DeadLetterRepository deadLetterRepository;
+    private final long requeueDelayMs;
 
-    public DeadLetterListener(DeadLetterRepository deadLetterRepository) {
+    public DeadLetterListener(
+            DeadLetterRepository deadLetterRepository,
+            @Value("${app.dlq.requeue-delay-ms:5000}") long requeueDelayMs
+    ) {
         this.deadLetterRepository = deadLetterRepository;
+        this.requeueDelayMs = requeueDelayMs;
     }
 
     @RabbitListener(queues = "${app.rabbitmq.dlq}")
@@ -33,9 +39,23 @@ public class DeadLetterListener {
             channel.basicAck(deliveryTag, false);
         } catch (Exception e) {
             // Keep the dead letter in the DLQ if we cannot persist it (e.g. DB down)
-            // rather than losing it. Requeue so it is retried once the store recovers.
-            log.error("Failed to persist dead letter - requeueing to DLQ", e);
+            // rather than losing it. Pause before requeueing so a sustained outage does
+            // not spin: the broker would otherwise redeliver immediately in a tight loop.
+            log.error("Failed to persist dead letter - requeueing to DLQ after {} ms", requeueDelayMs, e);
+            throttleBeforeRequeue();
             channel.basicNack(deliveryTag, false, true);
+        }
+    }
+
+    private void throttleBeforeRequeue() {
+        if (requeueDelayMs <= 0) {
+            return;
+        }
+        try {
+            Thread.sleep(requeueDelayMs);
+        } catch (InterruptedException ie) {
+            // Restore the flag but still requeue: we must not drop the dead letter.
+            Thread.currentThread().interrupt();
         }
     }
 

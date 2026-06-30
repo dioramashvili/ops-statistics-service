@@ -34,7 +34,8 @@ class DeadLetterListenerTest {
     void setUp() {
         deadLetterRepository = mock(DeadLetterRepository.class);
         channel = mock(Channel.class);
-        listener = new DeadLetterListener(deadLetterRepository);
+        // zero requeue delay so the failure-path test does not sleep
+        listener = new DeadLetterListener(deadLetterRepository, 0L);
     }
 
     private Message message(boolean withXDeath) {
