@@ -33,3 +33,10 @@ app:
     max-attempts: 3
     initial-interval-ms: 500
     multiplier: 2.0
+
+  segment-cache:
+    ttl-minutes: 60
+    max-size: 50000
+
+  dlq:
+    requeue-delay-ms: 5000

@@ -1,24 +1,37 @@
 package ge.bsb.ops.statistics.service;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.time.Duration;
 
 
 @Service
 public class SegmentResolver {
     private static final Logger log = LoggerFactory.getLogger(SegmentResolver.class);
 
-    private final Map<Integer, String> cache = new ConcurrentHashMap<>();
+    // Segments change rarely and there is no change event to react to, so entries are
+    // expired by age (expireAfterWrite) rather than kept forever: a segment change is
+    // picked up within the TTL, and maximumSize bounds memory. Errors are never cached.
+    private final Cache<Integer, String> cache;
     private final JdbcTemplate jdbcTemplate;
 
-    public SegmentResolver(JdbcTemplate jdbcTemplate) {
+    public SegmentResolver(
+            JdbcTemplate jdbcTemplate,
+            @Value("${app.segment-cache.ttl-minutes:60}") long ttlMinutes,
+            @Value("${app.segment-cache.max-size:50000}") long maxSize
+    ) {
         this.jdbcTemplate = jdbcTemplate;
+        this.cache = Caffeine.newBuilder()
+                .expireAfterWrite(Duration.ofMinutes(ttlMinutes))
+                .maximumSize(maxSize)
+                .build();
     }
 
     public String resolve(int customerId) {
@@ -26,9 +39,10 @@ public class SegmentResolver {
             return "N/A";
         }
 
-        if (cache.containsKey(customerId)) {
-            log.info("Cache hit for customerId: {}", customerId);
-            return cache.get(customerId);
+        String cached = cache.getIfPresent(customerId);
+        if (cached != null) {
+            log.debug("Cache hit for customerId: {}", customerId);
+            return cached;
         }
 
         try {
