@@ -1,5 +1,6 @@
 package ge.bsb.ops.statistics.handler;
 
+import ge.bsb.ops.statistics.model.Segment;
 import ge.bsb.ops.statistics.model.Transaction;
 import ge.bsb.ops.statistics.model.TransactionMessage;
 import ge.bsb.ops.statistics.parser.MessageParser;
@@ -56,14 +57,10 @@ public class MessageHandler {
 
         String routingKey = message.routingKey();
         Transaction transaction = messageParser.parse(message.body());
-        if (transaction == null) {
-            log.warn("Skipping message - parser returned null");
-            return;
-        }
 
         String debitSegment = segmentResolver.resolve(transaction.getDebitCustomerId());
         String creditSegment = segmentResolver.resolve(transaction.getCreditCustomerId());
-        if ("N/A".equals(debitSegment) && "N/A".equals(creditSegment)) {
+        if (Segment.NOT_APPLICABLE.equals(debitSegment) && Segment.NOT_APPLICABLE.equals(creditSegment)) {
             log.info("Skipping message - no client on either side");
             return;
         }

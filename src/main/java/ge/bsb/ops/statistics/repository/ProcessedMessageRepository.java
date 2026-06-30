@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class ProcessedMessageRepository {
-    private static final Logger log = LoggerFactory.getLogger(StatisticsRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(ProcessedMessageRepository.class);
 
     private final JdbcTemplate jdbcTemplate;
 

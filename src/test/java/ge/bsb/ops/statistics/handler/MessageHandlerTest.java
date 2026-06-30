@@ -181,27 +181,6 @@ class MessageHandlerTest {
     }
 
     @Test
-    void shouldSkipWhenParserReturnsNull() throws Exception {
-        TransactionMessage message = new TransactionMessage(
-                "msg-1",
-                "b6.transaction.create",
-                "{}"
-        );
-
-        when(processedMessageRepository.tryMarkProcessed("msg-1")).thenReturn(true);
-        when(messageParser.parse("{}")).thenReturn(null);
-
-        messageHandler.handle(message);
-
-        verify(processedMessageRepository).tryMarkProcessed("msg-1");
-        verify(messageParser).parse("{}");
-
-        verify(segmentResolver, never()).resolve(anyInt());
-        verify(statisticsRepository, never()).increment(any(), any(), anyInt(), any());
-        verify(statisticsRepository, never()).decrement(any(), any(), anyInt(), any());
-    }
-
-    @Test
     void shouldThrowForUnsupportedRoutingKey() throws Exception {
         TransactionMessage message = new TransactionMessage(
                 "msg-1",

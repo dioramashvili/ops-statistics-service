@@ -2,6 +2,7 @@ package ge.bsb.ops.statistics.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import ge.bsb.ops.statistics.model.Segment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +37,7 @@ public class SegmentResolver {
 
     public String resolve(int customerId) {
         if (customerId == 0) {
-            return "N/A";
+            return Segment.NOT_APPLICABLE;
         }
 
         String cached = cache.getIfPresent(customerId);
@@ -49,13 +50,13 @@ public class SegmentResolver {
             String segment;
 
             if (isJuridical(customerId)) {
-                segment = "Company";
+                segment = Segment.COMPANY;
             } else if (hasAttribute(customerId, "UNIQUE_BANKER")) {
-                segment = "Unique";
+                segment = Segment.UNIQUE;
             } else if (hasAttribute(customerId, "PREMIUM_BANKER")) {
-                segment = "Premium";
+                segment = Segment.PREMIUM;
             } else {
-                segment = "Mass";
+                segment = Segment.MASS;
             }
 
             log.info("Resolved segment for customerId: {} -> {}", customerId, segment);
