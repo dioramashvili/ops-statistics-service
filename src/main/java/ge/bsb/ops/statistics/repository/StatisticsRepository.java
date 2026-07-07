@@ -68,33 +68,28 @@ public class StatisticsRepository {
     }
 
     public void decrement(String debitSegment, String creditSegment, int channelId, LocalDate date) {
-        try {
-            int rowsAffected = jdbcTemplate.update(
-                    """
-                            UPDATE basis.OPS_SEGMENT_STATISTICS_DAVIT SET op_count = op_count - 1
-                            WHERE debit_segment = ?
-                            AND credit_segment = ?
-                            AND channel_id = ?
-                            AND doc_date = ?
-                            """,
-                    debitSegment,
-                    creditSegment,
-                    channelId,
-                    java.sql.Date.valueOf(date)
-            );
+        int rowsAffected = jdbcTemplate.update(
+                """
+                        UPDATE basis.OPS_SEGMENT_STATISTICS_DAVIT
+                        SET op_count = op_count - 1
+                        WHERE debit_segment  = ?
+                          AND credit_segment = ?
+                          AND channel_id     = ?
+                          AND doc_date       = ?
+                          AND op_count       > 0
+                        """,
+                debitSegment,
+                creditSegment,
+                channelId,
+                java.sql.Date.valueOf(date)
+        );
 
-            if (rowsAffected == 0) {
-                log.warn("Delete ignored — statistics row does not exist for debit: {}, credit: {}, channel: {}, date: {}",
-                        debitSegment, creditSegment, channelId, date);
-            }
-
-        } catch (Exception e) {
-            if (e.getMessage() != null && e.getMessage().contains("CHK_op_count_non_negative")) {
-                log.warn("Skipping delete — op_count would go below zero for debit: {}, credit: {}, channel: {}, date: {}",
-                        debitSegment, creditSegment, channelId, date);
-            } else {
-                throw e;
-            }
+        if (rowsAffected == 0) {
+            log.warn("Decrement skipped — no positive statistics row for debit: {}, credit: {}, channel: {}, date: {} (row missing or already zero)",
+                    debitSegment, creditSegment, channelId, date);
+        } else {
+            log.info("Statistics decremented - debit: {}, credit: {}, channel: {}, date: {}",
+                    debitSegment, creditSegment, channelId, date);
         }
     }
 }
