@@ -1,0 +1,17 @@
+# Dev profile: concrete, non-production values so the app runs out of the box.
+# The RabbitMQ credential here is a shared test-environment password (vhost B6dev,
+# user "test") - not a production secret. Production secrets are never committed;
+# see application-prod.yaml.
+#
+# TLS is on (encrypt=true) but the self-signed dev SQL Server cert is trusted rather
+# than validated (trustServerCertificate=true); production validates the cert chain.
+spring:
+  datasource:
+    url: jdbc:sqlserver://devcluster\devserv;databaseName=BANK2000;integratedSecurity=true;encrypt=true;trustServerCertificate=true
+
+  rabbitmq:
+    host: test-rabbit-srv.bsb.ge
+    port: 5672
+    username: test
+    password: REDACTED
+    virtual-host: B6dev

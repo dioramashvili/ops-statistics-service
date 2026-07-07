@@ -5,16 +5,12 @@ spring:
   main:
     web-application-type: none
 
+  # Connection settings (URL, hosts, credentials) live in the profile-specific files:
+  #   application-dev.yaml  - concrete dev values, runs out of the box
+  #   application-prod.yaml - supplied from environment variables, nothing committed
   datasource:
-    url: jdbc:sqlserver://devcluster\devserv;databaseName=BANK2000;integratedSecurity=true;encrypt=false
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
-  rabbitmq:
-    host: test-rabbit-srv.bsb.ge
-    port: 5672
-    username: test
-    password: REDACTED
-    virtual-host: B6dev
   profiles:
     active: dev
 
