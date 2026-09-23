@@ -119,7 +119,7 @@ ops-statistics-service/
   mvnw, mvnw.cmd, .mvn/              — Maven Wrapper
   README.md
 
-src/main/java/ge/bsb/ops/statistics/
+src/main/java/com/dioramashvili/opsstatistics/
   OpsStatisticsApplication.java      — Entry point
   config/
     RabbitMQConfig.java              — Queues, exchange, DLX/DLQ, listener container
@@ -340,7 +340,7 @@ ops-statistics-service/
   mvnw, mvnw.cmd, .mvn/              — Maven Wrapper
   README.md
 
-src/main/java/ge/bsb/ops/statistics/
+src/main/java/com/dioramashvili/opsstatistics/
   OpsStatisticsApplication.java      — საწყისი წერტილი
   config/
     RabbitMQConfig.java              — რიგები, exchange, DLX/DLQ, listener container

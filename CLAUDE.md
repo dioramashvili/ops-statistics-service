@@ -10,7 +10,7 @@ maintains per-segment aggregate counts in SQL Server. There is **no web layer**
 
 - Java 21, Spring Boot 4.0.6, Maven (use the wrapper `./mvnw`)
 - Persistence is **JDBC via `JdbcTemplate`** — there is no JPA/Hibernate and no entities
-- Package root: `ge.bsb.ops.statistics`
+- Package root: `com.dioramashvili.opsstatistics`
 
 ## Build & test
 
