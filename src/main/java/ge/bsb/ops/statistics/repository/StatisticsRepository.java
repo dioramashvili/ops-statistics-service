@@ -23,7 +23,7 @@ public class StatisticsRepository {
             jdbcTemplate.update(
                     """
                             BEGIN TRY
-                                UPDATE basis.OPS_SEGMENT_STATISTICS_DAVIT
+                                UPDATE dbo.SEGMENT_STATISTICS
                                 SET op_count = op_count + 1
                                 WHERE debit_segment  = ?
                                   AND credit_segment = ?
@@ -32,7 +32,7 @@ public class StatisticsRepository {
                             
                                 IF @@ROWCOUNT = 0
                                 BEGIN
-                                    INSERT INTO basis.OPS_SEGMENT_STATISTICS_DAVIT
+                                    INSERT INTO dbo.SEGMENT_STATISTICS
                                         (debit_segment, credit_segment, channel_id, doc_date, op_count)
                                     VALUES (?, ?, ?, ?, 1);
                                 END
@@ -40,7 +40,7 @@ public class StatisticsRepository {
                             BEGIN CATCH
                                 IF ERROR_NUMBER() IN (2601, 2627)
                                 BEGIN
-                                    UPDATE basis.OPS_SEGMENT_STATISTICS_DAVIT
+                                    UPDATE dbo.SEGMENT_STATISTICS
                                     SET op_count = op_count + 1
                                     WHERE debit_segment  = ?
                                       AND credit_segment = ?
@@ -70,7 +70,7 @@ public class StatisticsRepository {
     public void decrement(String debitSegment, String creditSegment, int channelId, LocalDate date) {
         int rowsAffected = jdbcTemplate.update(
                 """
-                        UPDATE basis.OPS_SEGMENT_STATISTICS_DAVIT
+                        UPDATE dbo.SEGMENT_STATISTICS
                         SET op_count = op_count - 1
                         WHERE debit_segment  = ?
                           AND credit_segment = ?

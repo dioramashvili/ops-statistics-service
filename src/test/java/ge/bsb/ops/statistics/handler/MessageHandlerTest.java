@@ -34,8 +34,8 @@ class MessageHandlerTest {
                 segmentResolver,
                 statisticsRepository,
                 processedMessageRepository,
-                "b6.transaction.create",
-                "b6.transaction.delete"
+                "transaction.create",
+                "transaction.delete"
         );
     }
 
@@ -43,7 +43,7 @@ class MessageHandlerTest {
     void shouldSkipDuplicateMessage() throws Exception {
         TransactionMessage message = new TransactionMessage(
                 "msg-1",
-                "b6.transaction.create",
+                "transaction.create",
                 "{}"
         );
 
@@ -60,7 +60,7 @@ class MessageHandlerTest {
     void shouldRejectMessageWithNullMessageId() {
         TransactionMessage message = new TransactionMessage(
                 null,
-                "b6.transaction.create",
+                "transaction.create",
                 "{}"
         );
 
@@ -79,7 +79,7 @@ class MessageHandlerTest {
     void shouldRejectMessageWithBlankMessageId() {
         TransactionMessage message = new TransactionMessage(
                 "   ",
-                "b6.transaction.create",
+                "transaction.create",
                 "{}"
         );
 
@@ -98,7 +98,7 @@ class MessageHandlerTest {
     void shouldIncrementStatisticsForCreateMessage() throws Exception {
         TransactionMessage message = new TransactionMessage(
                 "msg-1",
-                "b6.transaction.create",
+                "transaction.create",
                 "{}"
         );
 
@@ -129,7 +129,7 @@ class MessageHandlerTest {
     void shouldDecrementStatisticsForDeleteMessage() throws Exception {
         TransactionMessage message = new TransactionMessage(
                 "msg-1",
-                "b6.transaction.delete",
+                "transaction.delete",
                 "{}"
         );
 
@@ -160,7 +160,7 @@ class MessageHandlerTest {
     void shouldSkipWhenBothSegmentsAreNotApplicable() throws Exception {
         TransactionMessage message = new TransactionMessage(
                 "msg-1",
-                "b6.transaction.create",
+                "transaction.create",
                 "{}"
         );
 
@@ -184,7 +184,7 @@ class MessageHandlerTest {
     void shouldThrowForUnsupportedRoutingKey() throws Exception {
         TransactionMessage message = new TransactionMessage(
                 "msg-1",
-                "b6.transaction.craete",
+                "transaction.craete",
                 "{}"
         );
 

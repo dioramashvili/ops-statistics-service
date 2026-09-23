@@ -39,7 +39,7 @@ class TransactionEventListenerTest {
     private Message message() {
         MessageProperties props = new MessageProperties();
         props.setDeliveryTag(DELIVERY_TAG);
-        props.setReceivedRoutingKey("b6.transaction.create");
+        props.setReceivedRoutingKey("transaction.create");
         props.setMessageId("msg-1");
         return new Message("{}".getBytes(StandardCharsets.UTF_8), props);
     }

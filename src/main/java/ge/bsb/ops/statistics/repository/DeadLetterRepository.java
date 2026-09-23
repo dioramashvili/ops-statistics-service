@@ -19,7 +19,7 @@ public class DeadLetterRepository {
     public void save(DeadLetter deadLetter) {
         jdbcTemplate.update(
                 """
-                        INSERT INTO basis.OPS_DEAD_LETTERS_DAVIT
+                        INSERT INTO dbo.DEAD_LETTERS
                             (message_id, original_routing_key, death_reason, death_count, body)
                         VALUES (?, ?, ?, ?, ?);
                         """,

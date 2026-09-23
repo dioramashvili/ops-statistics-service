@@ -42,12 +42,12 @@ class DeadLetterListenerTest {
         MessageProperties props = new MessageProperties();
         props.setDeliveryTag(DELIVERY_TAG);
         props.setMessageId("msg-1");
-        props.setReceivedRoutingKey("basis.statistics.queue.v2.dead");
+        props.setReceivedRoutingKey("statistics.queue.dead");
         if (withXDeath) {
             props.setHeader("x-death", List.of(Map.of(
                     "reason", "rejected",
                     "count", 2L,
-                    "routing-keys", List.of("b6.transaction.create")
+                    "routing-keys", List.of("transaction.create")
             )));
         }
         return new Message("{\"channelId\":5}".getBytes(StandardCharsets.UTF_8), props);
@@ -62,7 +62,7 @@ class DeadLetterListenerTest {
 
         DeadLetter saved = captor.getValue();
         assertEquals("msg-1", saved.messageId());
-        assertEquals("b6.transaction.create", saved.originalRoutingKey());
+        assertEquals("transaction.create", saved.originalRoutingKey());
         assertEquals("rejected", saved.deathReason());
         assertEquals(2, saved.deathCount());
         assertEquals("{\"channelId\":5}", saved.body());
@@ -79,7 +79,7 @@ class DeadLetterListenerTest {
         verify(deadLetterRepository).save(captor.capture());
 
         DeadLetter saved = captor.getValue();
-        assertEquals("basis.statistics.queue.v2.dead", saved.originalRoutingKey());
+        assertEquals("statistics.queue.dead", saved.originalRoutingKey());
         assertEquals(null, saved.deathReason());
         assertEquals(null, saved.deathCount());
 
