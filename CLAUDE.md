@@ -92,5 +92,7 @@ app.dlq.requeue-delay-ms                                     # DLQ requeue throt
 
 ## Git
 
-- Default/plain-Java branch: `main`. Spring Boot work: `spring-boot-migration`.
+- Default branch: `main`, which now holds the Spring Boot service (merged from
+  `spring-boot-migration`). The original plain-Java implementation is preserved in
+  history prior to the merge.
 - Commit style is Conventional Commits (`fix:`, `feat:`, `refactor:`, `docs:`).

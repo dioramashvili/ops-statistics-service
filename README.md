@@ -146,7 +146,7 @@ src/main/java/ge/bsb/ops/statistics/
 
 ## Database
 
-The service uses three tables in the `basis` schema. The creation script is in `sql/create_tables.sql`.
+The service uses three tables in the `dbo` schema. The creation script is in `sql/create_tables.sql`.
 
 **`SEGMENT_STATISTICS`** — the aggregated counts:
 
@@ -367,7 +367,7 @@ src/main/java/ge/bsb/ops/statistics/
 
 ## მონაცემთა ბაზა
 
-სერვისი იყენებს სამ ცხრილს `basis` სქემაში. შექმნის სკრიპტი მოთავსებულია `sql/create_tables.sql`-ში.
+სერვისი იყენებს სამ ცხრილს `dbo` სქემაში. შექმნის სკრიპტი მოთავსებულია `sql/create_tables.sql`-ში.
 
 **`SEGMENT_STATISTICS`** — აგრეგირებული რაოდენობები:
 
