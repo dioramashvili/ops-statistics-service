@@ -1,0 +1,17 @@
+# Dev profile: local placeholder values so the app starts against your own
+# local infrastructure. These are NOT real credentials - point them at your own
+# local SQL Server and RabbitMQ, or override them via environment variables.
+# Production connection values come from the environment; see application-prod.yaml.
+#
+# TLS is on (encrypt=true) but the local server certificate is trusted rather than
+# validated (trustServerCertificate=true); production validates the certificate chain.
+spring:
+  datasource:
+    url: jdbc:sqlserver://localhost;databaseName=STATISTICS_DB;integratedSecurity=true;encrypt=true;trustServerCertificate=true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: dev

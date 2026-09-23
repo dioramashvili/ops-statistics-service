@@ -2,11 +2,11 @@
 
 > 🇬🇧 English | [🇬🇪 Georgian](#-georgian)
 
-A background service that listens to RabbitMQ transaction events and aggregates statistics into a SQL Server database by customer segment.
+A Spring Boot background service that listens to RabbitMQ transaction events and aggregates statistics into a SQL Server database by customer segment.
 
 ## Description
 
-The service consumes messages from the `Transactions` RabbitMQ exchange and counts transactions by the following criteria:
+The service consumes messages from the `transactions.exchange` RabbitMQ exchange and counts transactions by the following criteria:
 - Debit account customer segment
 - Credit account customer segment
 - Channel (ChannelID)
@@ -24,78 +24,131 @@ Segments are resolved in the following priority order (stops at first match):
 
 > If both debit and credit accounts have no client, the transaction is ignored.
 
+Resolved segments are cached (Caffeine) with a time-to-live so a segment change is picked up within the TTL without needing a change event; the cache is size-bounded so it cannot grow without limit.
+
+## Message Processing & Reliability
+
+Each message flows through a single transactional pipeline (`MessageHandler`):
+
+1. **Idempotency** — the message id is recorded in `PROCESSED_MESSAGES`. A re-delivered message hits the primary key, is recognised as a duplicate, and is skipped. Messages without a message id are rejected (they cannot be deduplicated).
+2. **Parse & resolve** — the JSON body is parsed and both customer segments are resolved.
+3. **Apply** — `op_count` is incremented (`create`) or decremented (`delete`).
+
+Delivery guarantees:
+- **Manual acknowledgement.** A message is acked only after it is fully processed and committed.
+- **Bounded retry with backoff.** Transient failures (e.g. a brief DB outage) are retried up to `app.retry.max-attempts` times with exponential backoff before the message is dead-lettered — so a blip does not immediately drop a message.
+- **Durable dead letters.** Messages that exhaust their retries are routed to the dead-letter queue and persisted to `DEAD_LETTERS` for inspection / replay. If persisting a dead letter fails (e.g. DB down) it is requeued after a short delay rather than lost.
+
 ## Prerequisites
 
 - Java 21
+- Maven (or use the included Maven Wrapper: `./mvnw`)
 - Access to a RabbitMQ server
-- Access to a SQL Server instance with Windows Authentication
-- `mssql-jdbc_auth` DLL for Windows Authentication support
+- Access to a SQL Server instance with Windows Authentication (`integratedSecurity=true`)
+- `mssql-jdbc_auth` DLL on the `java.library.path` for Windows Authentication support
 
 ## Configuration
 
-Copy `config.properties.example` and fill in your values:
+Configuration is split by Spring profile:
+
+| File | Purpose |
+|------|---------|
+| `application.yaml` | Common settings and `app.*` tuning; selects the active profile |
+| `application-dev.yaml` | Concrete dev connection values — **runs out of the box** |
+| `application-prod.yaml` | Connection values supplied from environment variables — **nothing committed** |
+
+The active profile defaults to `dev`. Select another with `--spring.profiles.active=prod` or `SPRING_PROFILES_ACTIVE=prod`.
+
+**Production environment variables:**
 
 ```
-config.properties.example → config.properties
+DB_HOST, DB_NAME
+RABBITMQ_HOST, RABBITMQ_USERNAME, RABBITMQ_PASSWORD, RABBITMQ_VIRTUAL_HOST
+RABBITMQ_PORT   (optional, default 5672)
 ```
 
-```properties
-rabbitmq.host=
-rabbitmq.port=
-rabbitmq.username=
-rabbitmq.password=
-rabbitmq.virtualhost=
-rabbitmq.queue=
-rabbitmq.exchange=
-sqlserver.url=
-```
+> **TLS:** both profiles connect with `encrypt=true`. Dev trusts the self-signed server certificate (`trustServerCertificate=true`); production validates the certificate chain (`trustServerCertificate=false`), so the SQL Server certificate's CA must be trusted by the JVM truststore.
 
-> For production: place the file in the project root directory.  
-> For tests: place it under the `src/` folder.
+**Tunable behaviour (`application.yaml`):**
+
+```yaml
+app:
+  retry:
+    max-attempts: 3          # attempts before dead-lettering
+    initial-interval-ms: 500 # first backoff, doubled each retry
+    multiplier: 2.0
+  segment-cache:
+    ttl-minutes: 60          # max staleness of a resolved segment
+    max-size: 50000          # cache entry cap
+  dlq:
+    requeue-delay-ms: 5000   # pause before requeueing an unpersistable dead letter
+```
 
 ## Running
 
-Add the following VM option to your IntelliJ Run Configuration:
+Dev (default profile, runs out of the box):
+
+```
+./mvnw spring-boot:run
+```
+
+Production (build the jar, supply env vars, activate the prod profile):
+
+```
+./mvnw clean package
+java -jar target/ops-statistics-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+```
+
+For Windows Authentication, add the auth DLL to the library path (IntelliJ Run Configuration VM options, or the `java` command line):
 
 ```
 -Djava.library.path=path\to\folder\containing\mssql-jdbc_auth.dll
 ```
 
-Then run `Application.java`.
+> The service is a background worker (`spring.main.web-application-type: none`); it exposes no HTTP endpoint.
 
 ## Project Structure
 
 ```
 ops-statistics-service/
-  src/                               — Source code
-  test/                              — Unit tests
-  lib/                               — Dependency JAR files
+  src/main/java/                     — Application code
+  src/main/resources/                — Configuration (application*.yaml)
+  src/test/java/                     — Unit tests
   sql/                               — SQL scripts
-  config.properties.example          — Configuration template
+  pom.xml                            — Maven build & dependencies
+  mvnw, mvnw.cmd, .mvn/              — Maven Wrapper
   README.md
-  .gitignore
 
-src/ge/bsb/ops/statistics/
-  Application.java                   — Entry point
-  consumer/
-    RabbitMQConsumer.java            — RabbitMQ connection and message consumption
+src/main/java/ge/bsb/ops/statistics/
+  OpsStatisticsApplication.java      — Entry point
+  config/
+    RabbitMQConfig.java              — Queues, exchange, DLX/DLQ, listener container
+    JacksonConfig.java               — ObjectMapper bean
+  listener/
+    TransactionEventListener.java    — Consumes transaction events; ack / retry / nack
+    DeadLetterListener.java          — Persists dead-lettered messages
   handler/
-    MessageHandler.java              — Processing pipeline coordinator
-  model/
-    Transaction.java                 — Transaction model
-    TransactionMessage.java          — RabbitMQ message wrapper
+    MessageHandler.java              — Transactional processing pipeline coordinator
   parser/
     MessageParser.java               — JSON body parsing
-  repository/
-    DatabaseConnection.java          — SQL Server connection
-    StatisticsRepository.java        — Statistics persistence
   service/
-    SegmentResolver.java             — Customer segment resolution
+    SegmentResolver.java             — Customer segment resolution (cached)
+  repository/
+    StatisticsRepository.java        — Statistics increment / decrement
+    ProcessedMessageRepository.java  — Idempotency ledger
+    DeadLetterRepository.java        — Dead-letter persistence
+  model/
+    Transaction.java                 — Parsed transaction
+    TransactionMessage.java          — Raw RabbitMQ message wrapper
+    DeadLetter.java                  — Dead-letter record
+    Segment.java                     — Segment label constants
 ```
 
 ## Database
 
-Statistics are stored in a dedicated table with the following schema:
+The service uses three tables in the `basis` schema. The creation script is in `sql/create_tables.sql`.
+
+**`SEGMENT_STATISTICS`** — the aggregated counts:
 
 | Column         | Type        | Description                     |
 |----------------|-------------|---------------------------------|
@@ -105,45 +158,62 @@ Statistics are stored in a dedicated table with the following schema:
 | doc_date       | DATE        | Document date                   |
 | op_count       | INT         | Transaction count               |
 
-> A CHECK constraint prevents `op_count` from going negative. If a delete operation would cause it to drop below zero, the service logs a warning and ignores the operation.
+> The decrement statement guards `op_count > 0`, so it never attempts to go negative; a delete that would drop below zero (or targets a missing row) is skipped with a warning. A `CHECK (op_count >= 0)` constraint remains as a database-level backstop.
 
-The table creation script is located in `sql/create_tables.sql`.
+**`PROCESSED_MESSAGES`** — the idempotency ledger:
+
+| Column       | Type          | Description                          |
+|--------------|---------------|--------------------------------------|
+| message_id   | NVARCHAR(255) | Processed message id (primary key)   |
+| processed_at | DATETIME2     | When it was recorded (UTC, default)  |
+
+**`DEAD_LETTERS`** — persisted dead letters:
+
+| Column               | Type          | Description                              |
+|----------------------|---------------|------------------------------------------|
+| id                   | BIGINT        | Identity primary key                     |
+| message_id           | NVARCHAR(255) | Original message id                      |
+| original_routing_key | NVARCHAR(255) | Original routing key (from `x-death`)    |
+| death_reason         | NVARCHAR(255) | Dead-letter reason (from `x-death`)      |
+| death_count          | INT           | Redelivery count (from `x-death`)        |
+| body                 | NVARCHAR(MAX) | Raw message body                         |
+| created_at           | DATETIME2     | When it was persisted (UTC, default)     |
+
+> **Note:** run this script once to provision the tables before the first run.
 
 ## RabbitMQ
 
-| Parameter    | Value                                      |
-|--------------|--------------------------------------------|
-| Exchange     | Transactions                               |
-| Type         | Topic                                      |
+| Parameter    | Value                                            |
+|--------------|--------------------------------------------------|
+| Exchange     | transactions.exchange                                  |
+| Type         | Topic                                            |
+| Queue        | statistics.queue                        |
 | Routing keys | `transaction.create`, `transaction.delete` |
+| DLX          | statistics.queue.dlx                    |
+| DLQ          | statistics.queue.dlq                    |
 
 - `transaction.create` — increments `op_count` by 1
 - `transaction.delete` — decrements `op_count` by 1
 
-## Logs
+Failed messages are retried (see [Message Processing & Reliability](#message-processing--reliability)); once retries are exhausted they are dead-lettered to the DLQ and stored in `DEAD_LETTERS`.
 
-The service writes logs to both the console and the `logs/` directory. Logs are retained for 30 days.
+## Logging
 
-## Dependencies
+The service logs via SLF4J / Logback (Spring Boot default) to the console.
 
-All required JAR files are located in the `lib/` folder. After opening the project in IntelliJ:
+## Build & Dependencies
 
-1. **File → Project Structure → Modules → Dependencies**
-2. Click `+` → **JARs or Directories**
-3. Select the `lib/` folder and add all JARs
+Built with Maven and Spring Boot 4.0.6 on Java 21. Dependency versions are managed by the Spring Boot BOM (except `mssql-jdbc`, which is pinned).
 
-| Library             | Version       | Purpose                  |
-|---------------------|---------------|--------------------------|
-| amqp-client         | 5.18.0        | RabbitMQ client          |
-| mssql-jdbc          | 13.4.0.jre11  | SQL Server JDBC driver   |
-| jackson-databind    | 2.17.2        | JSON parsing             |
-| jackson-core        | 2.17.2        | JSON parsing             |
-| jackson-annotations | 2.17.2        | JSON parsing             |
-| slf4j-api           | 2.0.9         | Logging API              |
-| logback-classic     | 1.5.32        | Logging implementation   |
-| logback-core        | 1.5.32        | Logging implementation   |
-| junit               | 4.13.2        | Unit tests               |
-| hamcrest-core       | 1.3           | Unit tests               |
+| Dependency                        | Version      | Purpose                        |
+|-----------------------------------|--------------|--------------------------------|
+| spring-boot-starter-amqp          | (BOM)        | RabbitMQ integration           |
+| spring-boot-starter-jdbc          | (BOM)        | JDBC / `JdbcTemplate`          |
+| spring-boot-starter-validation    | (BOM)        | Validation                     |
+| spring-boot-starter-actuator      | (BOM)        | Operational endpoints          |
+| jackson-databind                  | (BOM)        | JSON parsing                   |
+| caffeine                          | (BOM)        | Segment cache (TTL + max size) |
+| mssql-jdbc                        | 13.4.0.jre11 | SQL Server JDBC driver         |
 
 ---
 
@@ -153,11 +223,11 @@ All required JAR files are located in the `lib/` folder. After opening the proje
 
 # ops-statistics-service
 
-ფონური სერვისი, რომელიც უსმენს RabbitMQ-ს ტრანზაქციის ივენთებს და აგროვებს სტატისტიკას SQL Server-ის ბაზაში კლიენტის სეგმენტების მიხედვით.
+Spring Boot-ზე დაწერილი ფონური სერვისი, რომელიც უსმენს RabbitMQ-ს ტრანზაქციის ივენთებს და აგროვებს სტატისტიკას SQL Server-ის ბაზაში კლიენტის სეგმენტების მიხედვით.
 
 ## აღწერა
 
-სერვისი კითხულობს მესიჯებს `B6.Transactions` RabbitMQ exchange-იდან და ითვლის ტრანზაქციების რაოდენობას შემდეგი კრიტერიუმებით:
+სერვისი კითხულობს მესიჯებს `transactions.exchange` RabbitMQ exchange-იდან და ითვლის ტრანზაქციების რაოდენობას შემდეგი კრიტერიუმებით:
 - დებეტის ანგარიშის კლიენტის სეგმენტი
 - კრედიტის ანგარიშის კლიენტის სეგმენტი
 - არხი (ChannelID)
@@ -175,78 +245,131 @@ All required JAR files are located in the `lib/` folder. After opening the proje
 
 > თუ ორივე მხარეს (დებეტი და კრედიტი) უკლიენტო ანგარიშია, საბუთი იგნორირდება.
 
+დადგენილი სეგმენტები ინახება ქეშში (Caffeine) მოქმედების ვადით (TTL) — სეგმენტის ცვლილება აისახება TTL-ის განმავლობაში, ცალკე ცვლილების ივენთის საჭიროების გარეშე; ქეშს აქვს ზომის ლიმიტი, ამიტომ ის უსაზღვროდ ვერ გაიზრდება.
+
+## მესიჯების დამუშავება და საიმედოობა
+
+თითოეული მესიჯი გადის ერთ ტრანზაქციულ პროცესს (`MessageHandler`):
+
+1. **იდემპოტენტურობა** — მესიჯის id ინახება `PROCESSED_MESSAGES` ცხრილში. ხელახლა მოტანილი მესიჯი ხვდება primary key-ს, ცნობილია როგორც დუბლიკატი და იგნორირდება. მესიჯი, რომელსაც id არ აქვს, უარყოფილია (მისი დედუპლიკაცია შეუძლებელია).
+2. **პარსინგი და სეგმენტების დადგენა** — JSON body იპარსება და ორივე კლიენტის სეგმენტი დგინდება.
+3. **გამოყენება** — `op_count` იზრდება (`create`) ან მცირდება (`delete`).
+
+მიწოდების გარანტიები:
+- **ხელით დადასტურება (manual ack).** მესიჯი დასტურდება მხოლოდ სრული დამუშავებისა და ბაზაში ჩაწერის (commit) შემდეგ.
+- **შეზღუდული ხელახალი მცდელობა დაყოვნებით.** დროებითი შეფერხებები (მაგ. ბაზის ხანმოკლე გათიშვა) მეორდება `app.retry.max-attempts`-ჯერ ექსპონენციალური დაყოვნებით, სანამ მესიჯი DLQ-ში გადავა — ერთი შეფერხება მესიჯს მაშინვე არ კარგავს.
+- **მუდმივი (durable) dead letter-ები.** მესიჯები, რომლებმაც ხელახალი მცდელობები ამოწურეს, გადადის dead-letter რიგში და ინახება `DEAD_LETTERS` ცხრილში შესამოწმებლად / ხელახლა გასაშვებად. თუ dead letter-ის ჩაწერა ვერ ხერხდება (მაგ. ბაზა გათიშულია), ის ხელახლა ბრუნდება რიგში მცირე დაყოვნების შემდეგ და არ იკარგება.
+
 ## წინაპირობები
 
 - Java 21
+- Maven (ან ჩაშენებული Maven Wrapper: `./mvnw`)
 - წვდომა RabbitMQ სერვერზე
-- წვდომა SQL Server-ზე (`devcluster\devserv`) Windows Authentication-ით
-- `mssql-jdbc_auth-13.4.0.x64.dll` Windows Auth-ისთვის
+- წვდომა SQL Server-ზე Windows Authentication-ით (`integratedSecurity=true`)
+- `mssql-jdbc_auth` DLL `java.library.path`-ზე Windows Auth-ისთვის
 
 ## კონფიგურაცია
 
-დააკოპირეთ `config.properties.example` ფაილი და შეავსეთ მნიშვნელობები:
+კონფიგურაცია დაყოფილია Spring პროფილების მიხედვით:
+
+| ფაილი | დანიშნულება |
+|-------|-------------|
+| `application.yaml` | საერთო პარამეტრები და `app.*` პარამეტრები; ირჩევს აქტიურ პროფილს |
+| `application-dev.yaml` | კონკრეტული დევ მნიშვნელობები — **მუშაობს პირდაპირ** |
+| `application-prod.yaml` | კავშირის მნიშვნელობები გარემოს ცვლადებიდან — **არაფერი ინახება რეპოზიტორიაში** |
+
+აქტიური პროფილი ნაგულისხმევად არის `dev`. სხვის ასარჩევად: `--spring.profiles.active=prod` ან `SPRING_PROFILES_ACTIVE=prod`.
+
+**პროდაქშენის გარემოს ცვლადები:**
 
 ```
-config.properties.example → config.properties
+DB_HOST, DB_NAME
+RABBITMQ_HOST, RABBITMQ_USERNAME, RABBITMQ_PASSWORD, RABBITMQ_VIRTUAL_HOST
+RABBITMQ_PORT   (არასავალდებულო, ნაგულისხმევი 5672)
 ```
 
-```properties
-rabbitmq.host=
-rabbitmq.port=
-rabbitmq.username=
-rabbitmq.password=
-rabbitmq.virtualhost=
-rabbitmq.queue=
-rabbitmq.exchange=
-sqlserver.url=
-```
+> **TLS:** ორივე პროფილი უკავშირდება `encrypt=true`-ით. დევ ენდობა თვით-ხელმოწერილ სერტიფიკატს (`trustServerCertificate=true`); პროდაქშენი ამოწმებს სერტიფიკატის ჯაჭვს (`trustServerCertificate=false`), ამიტომ SQL Server-ის სერტიფიკატის CA უნდა იყოს ნდობით აღჭურვილი JVM-ის truststore-ში.
 
-> პროდაქშენ გაშვებისთვის ფაილი უნდა მოთავსდეს პროექტის root დირექტორიაში.
-> ტესტების გასაშვებად კი `src/` საქაღალდეში.
+**კონფიგურირებადი ქცევა (`application.yaml`):**
+
+```yaml
+app:
+  retry:
+    max-attempts: 3          # მცდელობები DLQ-ში გადასვლამდე
+    initial-interval-ms: 500 # პირველი დაყოვნება, ორმაგდება ყოველ მცდელობაზე
+    multiplier: 2.0
+  segment-cache:
+    ttl-minutes: 60          # სეგმენტის ქეშის მაქსიმალური სიძველე
+    max-size: 50000          # ქეშის ჩანაწერების ლიმიტი
+  dlq:
+    requeue-delay-ms: 5000   # დაყოვნება ჩაუწერელი dead letter-ის ხელახლა რიგში დაბრუნებამდე
+```
 
 ## გაშვება
 
-IntelliJ-ის Run Configuration-ში დაამატეთ VM option:
+დევ (ნაგულისხმევი პროფილი, მუშაობს პირდაპირ):
+
+```
+./mvnw spring-boot:run
+```
+
+პროდაქშენი (ააგე jar, მიაწოდე გარემოს ცვლადები, გაააქტიურე prod პროფილი):
+
+```
+./mvnw clean package
+java -jar target/ops-statistics-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+```
+
+Windows Authentication-ისთვის დაამატეთ auth DLL library path-ზე (IntelliJ Run Configuration-ის VM options, ან `java` ბრძანების ხაზზე):
 
 ```
 -Djava.library.path=path\to\folder\containing\mssql-jdbc_auth.dll
 ```
 
-შემდეგ გაუშვით `Application.java`.
+> სერვისი ფონური მუშაკია (`spring.main.web-application-type: none`); ის არ ხსნის HTTP endpoint-ს.
 
 ## პროექტის სტრუქტურა
 
 ```
 ops-statistics-service/
-  src/                               — საწყისი კოდი
-  test/                              — Unit ტესტები
-  lib/                               — დამოკიდებულების jar ფაილები
+  src/main/java/                     — აპლიკაციის კოდი
+  src/main/resources/                — კონფიგურაცია (application*.yaml)
+  src/test/java/                     — Unit ტესტები
   sql/                               — SQL სკრიპტები
-  config.properties.example          — კონფიგურაციის შაბლონი
+  pom.xml                            — Maven build და დამოკიდებულებები
+  mvnw, mvnw.cmd, .mvn/              — Maven Wrapper
   README.md
-  .gitignore
 
-src/ge/bsb/ops/statistics/
-  Application.java                   — საწყისი წერტილი
-  consumer/
-    RabbitMQConsumer.java            — RabbitMQ კავშირი და მესიჯების მიღება
+src/main/java/ge/bsb/ops/statistics/
+  OpsStatisticsApplication.java      — საწყისი წერტილი
+  config/
+    RabbitMQConfig.java              — რიგები, exchange, DLX/DLQ, listener container
+    JacksonConfig.java               — ObjectMapper bean
+  listener/
+    TransactionEventListener.java    — ტრანზაქციის ივენთების მიღება; ack / retry / nack
+    DeadLetterListener.java          — dead letter-ების ჩაწერა ბაზაში
   handler/
-    MessageHandler.java              — დამუშავების პროცესის კოორდინატორი
-  model/
-    Transaction.java                 — ტრანზაქციის მოდელი
-    TransactionMessage.java          — RabbitMQ მესიჯის wrapper
+    MessageHandler.java              — ტრანზაქციული დამუშავების კოორდინატორი
   parser/
-    MessageParser.java               — JSON body-ს პარსინგი Transaction-ად
-  repository/
-    DatabaseConnection.java          — SQL Server კავშირი
-    StatisticsRepository.java        — სტატისტიკის ჩაწერა ბაზაში
+    MessageParser.java               — JSON body-ს პარსინგი
   service/
-    SegmentResolver.java             — კლიენტის სეგმენტის განსაზღვრა SQL-იდან
+    SegmentResolver.java             — კლიენტის სეგმენტის დადგენა (ქეშირებული)
+  repository/
+    StatisticsRepository.java        — სტატისტიკის ზრდა / კლება
+    ProcessedMessageRepository.java  — იდემპოტენტურობის ჟურნალი
+    DeadLetterRepository.java        — dead letter-ების ჩაწერა
+  model/
+    Transaction.java                 — დაპარსული ტრანზაქცია
+    TransactionMessage.java          — RabbitMQ მესიჯის wrapper
+    DeadLetter.java                  — dead letter-ის ჩანაწერი
+    Segment.java                     — სეგმენტების ლეიბლების კონსტანტები
 ```
 
 ## მონაცემთა ბაზა
 
-სტატისტიკა ინახება `basis.OPS_SEGMENT_STATISTICS_DAVIT` ცხრილში:
+სერვისი იყენებს სამ ცხრილს `basis` სქემაში. შექმნის სკრიპტი მოთავსებულია `sql/create_tables.sql`-ში.
+
+**`SEGMENT_STATISTICS`** — აგრეგირებული რაოდენობები:
 
 | სვეტი          | ტიპი        | აღწერა                     |
 |----------------|-------------|----------------------------|
@@ -256,44 +379,59 @@ src/ge/bsb/ops/statistics/
 | doc_date       | DATE        | საბუთის თარიღი             |
 | op_count       | INT         | ტრანზაქციების რაოდენობა    |
 
-> `op_count` სვეტზე დაწესებულია CHECK constraint (`CHK_op_count_non_negative`), რომელიც არ უშვებს უარყოფით მნიშვნელობებს. თუ წაშლის ოპერაცია გამოიწვევს `op_count`-ის ნულზე დაბლა ჩავარდნას, სერვისი დააიგნორებს ამ ოპერაციას და წერს შესაბამის გაფრთხილებას ლოგში.
+> კლების ოპერაცია იცავს პირობას `op_count > 0`, ამიტომ არასდროს ცდილობს უარყოფით მნიშვნელობას; წაშლა, რომელიც ნულზე დაბლა ჩავარდნას გამოიწვევდა (ან ეხება არარსებულ ჩანაწერს), იგნორირდება გაფრთხილებით. `CHECK (op_count >= 0)` constraint რჩება ბაზის დონის დამატებით დაცვად.
 
-ცხრილის შექმნის სკრიპტი მოთავსებულია `sql/create_tables.sql`-ში.
+**`PROCESSED_MESSAGES`** — იდემპოტენტურობის ჟურნალი:
 
-> **შენიშვნა:** ცხრილი უკვე შექმნილია დევ სერვერზე (`BANK2000`). სკრიპტი საჭიროა მხოლოდ ახალი გარემოს კონფიგურაციისას.
+| სვეტი        | ტიპი          | აღწერა                                 |
+|--------------|---------------|----------------------------------------|
+| message_id   | NVARCHAR(255) | დამუშავებული მესიჯის id (primary key)  |
+| processed_at | DATETIME2     | ჩაწერის დრო (UTC, ნაგულისხმევი)        |
+
+**`DEAD_LETTERS`** — შენახული dead letter-ები:
+
+| სვეტი                | ტიპი          | აღწერა                                   |
+|----------------------|---------------|------------------------------------------|
+| id                   | BIGINT        | Identity primary key                     |
+| message_id           | NVARCHAR(255) | თავდაპირველი მესიჯის id                  |
+| original_routing_key | NVARCHAR(255) | თავდაპირველი routing key (`x-death`-იდან)|
+| death_reason         | NVARCHAR(255) | dead-letter-ის მიზეზი (`x-death`-იდან)   |
+| death_count          | INT           | ხელახალი მიწოდების რაოდენობა (`x-death`)  |
+| body                 | NVARCHAR(MAX) | მესიჯის დაუმუშავებელი body               |
+| created_at           | DATETIME2     | ჩაწერის დრო (UTC, ნაგულისხმევი)          |
+
+> **შენიშვნა:** გაუშვით ეს სკრიპტი ერთხელ ცხრილების შესაქმნელად პირველ გაშვებამდე.
 
 ## RabbitMQ
 
 | პარამეტრი    | მნიშვნელობა                                      |
 |--------------|--------------------------------------------------|
-| Exchange     | B6.Transactions                                  |
+| Exchange     | transactions.exchange                                  |
 | ტიპი         | Topic                                            |
-| Routing keys | `b6.transaction.create`, `b6.transaction.delete` |
+| რიგი         | statistics.queue                        |
+| Routing keys | `transaction.create`, `transaction.delete` |
+| DLX          | statistics.queue.dlx                    |
+| DLQ          | statistics.queue.dlq                    |
 
-- `b6.transaction.create` — `op_count` იზრდება 1-ით
-- `b6.transaction.delete` — `op_count` მცირდება 1-ით
+- `transaction.create` — `op_count` იზრდება 1-ით
+- `transaction.delete` — `op_count` მცირდება 1-ით
+
+წარუმატებელი მესიჯები მეორდება (იხ. [მესიჯების დამუშავება და საიმედოობა](#მესიჯების-დამუშავება-და-საიმედოობა)); მცდელობების ამოწურვის შემდეგ ისინი გადადის DLQ-ში და ინახება `DEAD_LETTERS`-ში.
 
 ## ლოგები
 
-სერვისი წერს ლოგებს კონსოლსა და `logs/` საქაღალდეში. ლოგები ინახება 30 დღე.
+სერვისი წერს ლოგებს SLF4J / Logback-ის მეშვეობით (Spring Boot-ის ნაგულისხმევი) კონსოლში.
 
-## დამოკიდებულებები
+## აგება და დამოკიდებულებები
 
-ყველა საჭირო jar ფაილი მოთავსებულია `lib/` საქაღალდეში. IntelliJ-ში პროექტის გახსნის შემდეგ:
+აგებულია Maven-ითა და Spring Boot 4.0.6-ით Java 21-ზე. დამოკიდებულებების ვერსიებს მართავს Spring Boot BOM (გარდა `mssql-jdbc`-ისა, რომელიც ფიქსირებულია).
 
-1. **File → Project Structure → Modules → Dependencies**
-2. დააჭირეთ `+` → **JARs or Directories**
-3. მიუთითეთ `lib/` საქაღალდე და დაამატეთ ყველა jar
-
-| ბიბლიოთეკა          | ვერსია       | დანიშნულება              |
-|---------------------|--------------|--------------------------|
-| amqp-client         | 5.18.0       | RabbitMQ კლიენტი         |
-| mssql-jdbc          | 13.4.0.jre11 | SQL Server JDBC დრაივერი |
-| jackson-databind    | 2.17.2       | JSON პარსინგი            |
-| jackson-core        | 2.17.2       | JSON პარსინგი            |
-| jackson-annotations | 2.17.2       | JSON პარსინგი            |
-| slf4j-api           | 2.0.9        | ლოგირების API            |
-| logback-classic     | 1.5.32       | ლოგირების იმპლემენტაცია  |
-| logback-core        | 1.5.32       | ლოგირების იმპლემენტაცია  |
-| junit               | 4.13.2       | Unit ტესტები             |
-| hamcrest-core       | 1.3          | Unit ტესტები             |
+| დამოკიდებულება                    | ვერსია       | დანიშნულება                     |
+|-----------------------------------|--------------|---------------------------------|
+| spring-boot-starter-amqp          | (BOM)        | RabbitMQ ინტეგრაცია             |
+| spring-boot-starter-jdbc          | (BOM)        | JDBC / `JdbcTemplate`           |
+| spring-boot-starter-validation    | (BOM)        | ვალიდაცია                       |
+| spring-boot-starter-actuator      | (BOM)        | ოპერაციული endpoint-ები         |
+| jackson-databind                  | (BOM)        | JSON პარსინგი                   |
+| caffeine                          | (BOM)        | სეგმენტების ქეში (TTL + ლიმიტი)  |
+| mssql-jdbc                        | 13.4.0.jre11 | SQL Server JDBC დრაივერი        |

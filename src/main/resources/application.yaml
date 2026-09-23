@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: ops-statistics-service-spring
+
+  main:
+    web-application-type: none
+
+  # Connection settings (URL, hosts, credentials) live in the profile-specific files:
+  #   application-dev.yaml  - concrete dev values, runs out of the box
+  #   application-prod.yaml - supplied from environment variables, nothing committed
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  profiles:
+    active: dev
+
+app:
+  rabbitmq:
+    queue: statistics.queue
+    exchange: transactions.exchange
+    create-routing-key: transaction.create
+    delete-routing-key: transaction.delete
+
+    dlx: statistics.queue.dlx
+    dlq: statistics.queue.dlq
+    dead-letter-routing-key: statistics.queue.dead
+
+  retry:
+    max-attempts: 3
+    initial-interval-ms: 500
+    multiplier: 2.0
+
+  segment-cache:
+    ttl-minutes: 60
+    max-size: 50000
+
+  dlq:
+    requeue-delay-ms: 5000

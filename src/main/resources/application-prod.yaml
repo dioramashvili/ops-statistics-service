@@ -1,0 +1,21 @@
+# Production profile: every connection value comes from the environment - no secrets
+# are committed. The app fails fast at startup if a required variable is missing.
+#
+# Required environment variables:
+#   DB_HOST, DB_NAME
+#   RABBITMQ_HOST, RABBITMQ_USERNAME, RABBITMQ_PASSWORD, RABBITMQ_VIRTUAL_HOST
+# Optional (with default):
+#   RABBITMQ_PORT (default 5672)
+#
+# TLS is enforced with certificate validation (encrypt=true, trustServerCertificate=false):
+# the SQL Server certificate's CA must be trusted by the JVM truststore.
+spring:
+  datasource:
+    url: jdbc:sqlserver://${DB_HOST};databaseName=${DB_NAME};integratedSecurity=true;encrypt=true;trustServerCertificate=false
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VIRTUAL_HOST}
