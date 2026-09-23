@@ -8,7 +8,7 @@
         <version>4.0.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>ge.bsb.ops</groupId>
+    <groupId>com.dioramashvili</groupId>
     <artifactId>ops-statistics-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ops-statistics-service-spring</name>
